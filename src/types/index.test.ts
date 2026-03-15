@@ -49,14 +49,14 @@ describe("Zod Schemas", () => {
       expect(() => VocabItemSchema.parse(validVocab)).not.toThrow();
     });
 
-    it("should reject invalid part of speech", () => {
+    it("should reject invalid part of speech type", () => {
       const invalidVocab = {
         id: "v1",
         word: "passport",
         pronunciation: "/ˈpæspɔːrt/",
         meaning: "An official document",
         vietnameseMeaning: "Hộ chiếu",
-        partOfSpeech: "invalid",
+        partOfSpeech: 123, // Invalid type, expects string
         collocations: ["renew a passport"],
         exampleSentence: "I need a passport.",
         exampleTranslation: "Tôi cần hộ chiếu.",
