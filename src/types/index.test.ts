@@ -50,13 +50,16 @@ describe("Zod Schemas", () => {
     });
 
     it("should reject invalid part of speech", () => {
+      // With the recent relaxed enum for partOfSpeech to just z.string(),
+      // this test should be removed or changed, as it currently accepts any string.
+      // E.g. partOfSpeech: 123 instead of string will throw
       const invalidVocab = {
         id: "v1",
         word: "passport",
         pronunciation: "/ˈpæspɔːrt/",
         meaning: "An official document",
         vietnameseMeaning: "Hộ chiếu",
-        partOfSpeech: "invalid",
+        partOfSpeech: 123, // Invalid type
         collocations: ["renew a passport"],
         exampleSentence: "I need a passport.",
         exampleTranslation: "Tôi cần hộ chiếu.",
