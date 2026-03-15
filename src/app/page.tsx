@@ -53,7 +53,6 @@ const partnerLogos: PartnerLogo[] = [
 
 export default async function HomePage() {
   // In the future, you can fetch data from DB, API, or File System here
-  // const featureTabs = await fetchFeatureTabs()
   // const reviews = await fetchReviews()
   // const partnerLogos = await fetchPartnerLogos()
 
