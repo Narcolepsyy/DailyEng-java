@@ -589,8 +589,6 @@ const allCourses: Course[] = [
 
 export default async function BuildPlanPage() {
   // In the future, you can fetch data from DB, API, or File System here
-  // const questions = await fetchQuestions()
-  // const allCourses = await fetchCourses()
 
   return <BuildPlanPageClient questions={questions} allCourses={allCourses} />;
 }
