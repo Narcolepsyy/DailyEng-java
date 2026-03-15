@@ -14,8 +14,5 @@ const benefits = [
 ];
 
 export default async function SignUpPage() {
-  // In the future, you can fetch data from DB, API, or File System here
-  // const benefits = await fetchBenefits()
-
   return <SignUpPageClient benefits={benefits} />;
 }
