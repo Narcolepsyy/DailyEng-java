@@ -1,3 +1,7 @@
 ## 2025-03-17 - Added Missing ARIA Labels on Profile Layout Components
 **Learning:** Icon-only buttons in the user layout section (like `UserProfileSidebar` upload button and `ProfileDropdown` trigger) often lack `aria-label`s, which represents a critical accessibility gap for screen readers as they provide no context of the interaction. Using `size="icon"` in standard `Button` components from `shadcn/ui` makes the label implicit visually, but screen readers are left blind without an explicit accessible label.
 **Action:** When adding or reviewing layout buttons (especially those containing avatars or upload icons without text), enforce that any button with `size="icon"` must include an explicit `aria-label` describing its action, such as "Upload profile picture" or "Open user profile menu".
+
+## 2024-03-18 - Added Missing ARIA Labels on VocabFlashcardStack and NotebookPageClient
+**Learning:** Standard shadcn `Button` components using `size="icon"` lack an explicit `aria-label`, leaving screen readers without context for the action, especially for features like "Star item", "Filter items", or "Play pronunciation".
+**Action:** Consistently supply a concise, descriptive `aria-label` attribute on `Button size="icon"` elements across the app. Dynamic actions like "Star item" / "Unstar item" should have conditionally updated `aria-label`s reflecting their current state for improved accessibility.

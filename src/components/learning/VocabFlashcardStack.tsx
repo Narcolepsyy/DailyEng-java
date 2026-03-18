@@ -164,7 +164,7 @@ export function VocabFlashcardStack({
                                     <div className="flex items-center gap-1">
                                         <span className="text-xs font-bold text-slate-400">UK</span>
                                         <span className="font-mono text-lg text-slate-700">/{currentWord.phon_br}/</span>
-                                        <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full hover:bg-slate-100 text-primary-600" onClick={(e) => handlePlayAudio(e, 'uk')}>
+                                        <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full hover:bg-slate-100 text-primary-600" onClick={(e) => handlePlayAudio(e, 'uk')} aria-label="Play UK pronunciation">
                                             <Volume2 className="h-3 w-3" />
                                         </Button>
                                     </div>
@@ -173,7 +173,7 @@ export function VocabFlashcardStack({
                                     <div className="flex items-center gap-1">
                                         <span className="text-xs font-bold text-slate-400">US</span>
                                         <span className="font-mono text-lg text-slate-700">/{currentWord.phon_n_am}/</span>
-                                        <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full hover:bg-slate-100 text-red-600" onClick={(e) => handlePlayAudio(e, 'us')}>
+                                        <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full hover:bg-slate-100 text-red-600" onClick={(e) => handlePlayAudio(e, 'us')} aria-label="Play US pronunciation">
                                             <Volume2 className="h-3 w-3" />
                                         </Button>
                                     </div>
@@ -181,7 +181,7 @@ export function VocabFlashcardStack({
                                 {!currentWord.phon_br && !currentWord.phon_n_am && currentWord.pronunciation && (
                                     <div className="flex items-center gap-2">
                                         <span className="font-mono text-lg">{currentWord.pronunciation}</span>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-slate-100" onClick={(e) => handlePlayAudio(e, 'us')}>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-slate-100" onClick={(e) => handlePlayAudio(e, 'us')} aria-label="Play pronunciation">
                                             <Volume2 className="h-4 w-4" />
                                         </Button>
                                     </div>
@@ -204,10 +204,10 @@ export function VocabFlashcardStack({
                                     <p className="text-primary-600 font-medium text-sm">{currentWord.type || currentWord.partOfSpeech}</p>
                                 </div>
                                 <div className="flex gap-2">
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-blue-50 text-blue-600" onClick={(e) => handlePlayAudio(e, 'uk')}>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-blue-50 text-blue-600" onClick={(e) => handlePlayAudio(e, 'uk')} aria-label="Play UK pronunciation">
                                         <Volume2 className="h-4 w-4" /> <span className="sr-only">UK</span>
                                     </Button>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-red-50 text-red-600" onClick={(e) => handlePlayAudio(e, 'us')}>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-red-50 text-red-600" onClick={(e) => handlePlayAudio(e, 'us')} aria-label="Play US pronunciation">
                                         <Volume2 className="h-4 w-4" /> <span className="sr-only">US</span>
                                     </Button>
                                 </div>
@@ -243,6 +243,7 @@ export function VocabFlashcardStack({
                                                                     utterance.lang = "en-US";
                                                                     window.speechSynthesis.speak(utterance);
                                                                 }}
+                                                                aria-label="Play example sentence"
                                                             >
                                                                 <Volume2 className="h-2.5 w-2.5" />
                                                             </Button>
@@ -255,6 +256,7 @@ export function VocabFlashcardStack({
                                                                     setShowShadowing(true);
                                                                     setShadowingContent({ text: ex.en, translation: ex.vi });
                                                                 }}
+                                                                aria-label="Shadow example sentence"
                                                             >
                                                                 <Mic className="h-2.5 w-2.5" />
                                                             </Button>
@@ -371,7 +373,7 @@ export function VocabFlashcardStack({
             {/* Controls */}
             <div className="w-full max-w-3xl mx-auto mt-4 px-2">
                 <div className="flex items-stretch gap-2 h-12">
-                    <Button variant="outline" onClick={handlePrev} disabled={currentIndex === 0} className="rounded-xl px-3 border-slate-300">
+                    <Button variant="outline" onClick={handlePrev} disabled={currentIndex === 0} className="rounded-xl px-3 border-slate-300" aria-label="Previous card">
                         <ChevronLeft className="h-5 w-5" />
                     </Button>
 
@@ -394,7 +396,7 @@ export function VocabFlashcardStack({
                         ))}
                     </div>
 
-                    <Button variant="outline" onClick={() => handleNext()} disabled={isLastCard} className="rounded-xl px-3 border-slate-300">
+                    <Button variant="outline" onClick={() => handleNext()} disabled={isLastCard} className="rounded-xl px-3 border-slate-300" aria-label="Next card">
                         <ChevronRight className="h-5 w-5" />
                     </Button>
                 </div>
