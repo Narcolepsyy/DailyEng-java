@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import React, { memo } from "react"
 
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -51,7 +51,7 @@ const getThumbnailStyle = (title: string, subcategory: string = "") => {
   return { bg: colors[hash % colors.length], Icon: Mic };
 }
 
-const SpeakingThumbnail = ({ title, subcategory, level }: { title: string, subcategory?: string, level: string }) => {
+const SpeakingThumbnail = memo(function SpeakingThumbnail({ title, subcategory, level }: { title: string, subcategory?: string, level: string }) {
   const { bg, Icon } = getThumbnailStyle(title, subcategory);
   
   return (
@@ -71,9 +71,9 @@ const SpeakingThumbnail = ({ title, subcategory, level }: { title: string, subca
       </div>
     </div>
   )
-}
+});
 
-export function TopicCard({
+export const TopicCard = memo(function TopicCard({
   id,
   title,
   description,
@@ -243,4 +243,4 @@ export function TopicCard({
       {cardContent}
     </div>
   );
-}
+});
