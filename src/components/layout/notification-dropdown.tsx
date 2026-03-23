@@ -164,6 +164,7 @@ export function NotificationDropdown() {
           size="icon"
           className="hidden sm:flex relative"
           title="Notifications"
+          aria-label="Open notifications"
         >
           <Bell className="h-5 w-5" />
         </Button>

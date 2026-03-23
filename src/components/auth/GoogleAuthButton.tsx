@@ -26,30 +26,41 @@ export function GoogleAuthButton({
   const { loginWithGoogle } = useAuth()
   const router = useRouter()
   const [isPending, setIsPending] = useState(false)
+  const hasClientId = !!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      setIsPending(true)
-      try {
-        // Google returns an access_token via implicit flow
-        // Our backend expects an idToken — we use the access_token
-        // to fetch user info, or if your backend supports access_token auth
-        const result = await loginWithGoogle(tokenResponse.access_token)
-        if (result.success) {
-          window.location.href = "/"
-        } else {
-          onError?.(result.error || "Google sign-in failed")
+  let useGoogleLoginHook: () => void;
+  try {
+    useGoogleLoginHook = useGoogleLogin({
+      onSuccess: async (tokenResponse) => {
+        setIsPending(true)
+        try {
+          const result = await loginWithGoogle(tokenResponse.access_token)
+          if (result.success) {
+            window.location.href = "/"
+          } else {
+            onError?.(result.error || "Google sign-in failed")
+          }
+        } catch {
+          onError?.("Google sign-in failed. Please try again.")
+        } finally {
+          setIsPending(false)
         }
-      } catch {
-        onError?.("Google sign-in failed. Please try again.")
-      } finally {
-        setIsPending(false)
-      }
-    },
-    onError: () => {
-      onError?.("Google sign-in was cancelled or failed.")
-    },
-  })
+      },
+      onError: () => {
+        onError?.("Google sign-in was cancelled or failed.")
+      },
+    });
+  } catch (err) {
+    useGoogleLoginHook = () => {
+      onError?.("Google sign-in is not configured on this environment.")
+    };
+  }
+
+  const googleLogin = useGoogleLoginHook;
+
+  if (!hasClientId) {
+    return null;
+  }
 
   return (
     <Button
