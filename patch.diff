@@ -1,0 +1,24 @@
+--- backend/src/main/java/com/dailyeng/speaking/SpeechController.java
++++ backend/src/main/java/com/dailyeng/speaking/SpeechController.java
+@@ -67,6 +67,10 @@
+     ) {
+         requireUserId();
+         boolean isScripted = referenceText != null && !referenceText.isBlank();
++        // 🛡️ Sentinel: Prevent Cost Exhaustion / DoS
++        if (isScripted && referenceText.length() > 5000) {
++            return ResponseEntity.badRequest().build();
++        }
+         try {
+             log.info("🎤 Transcribe+Assess [{}]: contentType={}, size={} bytes, targetLang={}",
+                     isScripted ? "scripted" : "unscripted",
+@@ -147,6 +151,10 @@
+             @RequestParam(value = "targetLanguage", required = false) String targetLanguage
+     ) {
+         requireUserId();
++        // 🛡️ Sentinel: Prevent Cost Exhaustion / DoS
++        if (referenceText != null && referenceText.length() > 5000) {
++            return ResponseEntity.badRequest().build();
++        }
+         try {
+             var locale = resolveAzureLocale(targetLanguage);
+             AzureSpeechService.PronunciationResult result;
