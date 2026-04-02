@@ -54,6 +54,12 @@ public class SmartLensController {
                     "error", "Image exceeds maximum size of 4MB"));
         }
 
+        // 🛡️ Sentinel: Prevent Memory Exhaustion / DoS from massive language codes
+        if (to != null && to.length() > 50) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "error", "Target language code exceeds maximum length of 50 characters"));
+        }
+
         try {
             // Step 1: OCR — extract text from image
             byte[] imageData = image.getBytes();

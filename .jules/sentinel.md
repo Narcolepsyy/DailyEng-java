@@ -17,3 +17,7 @@
 **Vulnerability:** The Spring Boot API mapped large string query/form parameters (`targetLanguage`) and passed them directly to downstream services (Azure Speech / Translator) or resolution functions.
 **Learning:** Even internal helper functions mapping standard types (like language codes) can cause OutOfMemory errors, DoS attacks, or massive string allocation overheads if bad actors submit payloads with millions of characters to a REST controller that lacks length bounds.
 **Prevention:** Add hardcoded string `.length()` checks (e.g., `> 50`) inside the controller at the entry point, or apply standard Spring `@Size(max=...)` annotations to enforce bounds on every string input, regardless of how "harmless" the field seems.
+## 2026-04-02 - Missing Input Validation on External API Payload
+**Vulnerability:** The `SmartLensController.java` did not limit the length of the `to` (target language) parameter before passing it to the Azure Translator service, exposing the application to Memory Exhaustion and Denial of Service (DoS) risks from massively large strings.
+**Learning:** External API services (like Azure Speech or Translator) will try to process whatever string length they are given, which can lead to high memory usage, timeouts, or cost exhaustion if user inputs are passed directly without length constraints.
+**Prevention:** Always enforce explicit input length restrictions on user-provided data passed to external APIs. Use `@Size(max=...)` on DTO fields or manual length checks in controllers for raw `@RequestParam` strings.
