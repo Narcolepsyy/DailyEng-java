@@ -33,3 +33,6 @@
 ## 2025-05-19 - [Optimized Set Generation from Filtered Mapped Array]
 **Learning:** Chaining `.filter().map()` to generate an array of IDs from a large data list and then wrapping it in `new Set()` allocates intermediate arrays that are immediately thrown away. In heavily re-rendered or intensely derived state components (like graph node simulation state), this creates unnecessary GC pressure and iterates over the original array twice.
 **Action:** Replace chained `.filter().map()` operations with a single classic `for` loop that populates a `Set` directly to cut iteration count in half and reduce memory allocation.
+## 2026-04-05 - [Optimized O(N) Traversal in GamificationRoadmap]
+**Learning:** In heavily used components like gamification-roadmap, iterating over large static mock arrays multiple times (e.g., using both `.filter` and `.reduce` independently) can create minor rendering overhead. While often negligible for small static arrays, it can become a bottleneck when these data structures scale up or are fetched via Server Actions and held in local state.
+**Action:** Consolidate multiple array traversals into a single O(N) pass and memoize the computed values using `useMemo` (especially when combined with derived values like `completedLessonsCount`) to reduce re-renders and compute cycles.

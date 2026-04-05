@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import {
   BookOpen,
   Mic,
@@ -236,8 +236,26 @@ export function GamificationRoadmap() {
   const currentModule = mockModules.find((m) => m.status === "current") || null
   const [selectedModule, setSelectedModule] = useState<Module | null>(currentModule)
 
-  const completedModules = mockModules.filter((m) => m.status === "completed").length
-  const totalXP = mockModules.reduce((acc, m) => acc + m.xp, 0)
+  // ⚡ Bolt: Consolidate multiple array traversals into a single O(N) pass and memoize
+  const { completedModules, totalXP } = useMemo(() => {
+    let completed = 0
+    let xp = 0
+    for (const m of mockModules) {
+      if (m.status === "completed") completed++
+      xp += m.xp
+    }
+    return { completedModules: completed, totalXP: xp }
+  }, []) // Empty deps because mockModules is defined statically outside
+
+  // ⚡ Bolt: Memoize completed lessons count to avoid recalculation on unrelated renders
+  const completedLessonsCount = useMemo(() => {
+    if (!selectedModule) return 0
+    let count = 0
+    for (const l of selectedModule.lessons) {
+      if (l.completed) count++
+    }
+    return count
+  }, [selectedModule])
 
   return (
     <div className="space-y-4">
@@ -395,7 +413,7 @@ export function GamificationRoadmap() {
                   <Zap className="w-3 h-3" /> {selectedModule.xp} XP earned
                 </span>
                 <span className="text-[10px] text-primary-600">
-                  {selectedModule.lessons.filter((l) => l.completed).length}/{selectedModule.lessons.length} lessons
+                  {completedLessonsCount}/{selectedModule.lessons.length} lessons
                 </span>
               </div>
             </div>
