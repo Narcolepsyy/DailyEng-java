@@ -101,6 +101,8 @@ export function DetailedFeedback({
           size="icon"
           onClick={onBack}
           className="rounded-full hover:bg-muted h-10 w-10 bg-white"
+          aria-label="Go back"
+          title="Go back"
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
