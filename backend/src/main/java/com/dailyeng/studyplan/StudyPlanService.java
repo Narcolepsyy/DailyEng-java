@@ -102,8 +102,8 @@ public class StudyPlanService {
     // ========================================================================
 
     @Transactional
-    public StudyTaskResponse toggleTaskCompletion(String taskId, ToggleTaskRequest request) {
-        var task = findTaskById(taskId);
+    public StudyTaskResponse toggleTaskCompletion(String userId, String taskId, ToggleTaskRequest request) {
+        var task = findTaskById(userId, taskId);
         task.setCompleted(request.completed());
         studyTaskRepository.save(task);
         return toTaskResponse(task);
@@ -114,8 +114,8 @@ public class StudyPlanService {
     // ========================================================================
 
     @Transactional
-    public StudyTaskResponse updateTaskTime(String taskId, UpdateTaskTimeRequest request) {
-        var task = findTaskById(taskId);
+    public StudyTaskResponse updateTaskTime(String userId, String taskId, UpdateTaskTimeRequest request) {
+        var task = findTaskById(userId, taskId);
         task.setStartTime(request.startTime());
         task.setEndTime(request.endTime());
         studyTaskRepository.save(task);
@@ -200,9 +200,16 @@ public class StudyPlanService {
                 .orElseThrow(() -> new ResourceNotFoundException("Study plan not found for user: " + userId));
     }
 
-    private StudyTask findTaskById(String taskId) {
-        return studyTaskRepository.findById(taskId)
+    private StudyTask findTaskById(String userId, String taskId) {
+        var task = studyTaskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Study task not found: " + taskId));
+
+        // 🛡️ Sentinel: Prevent IDOR - ensure task belongs to the user
+        if (task.getPlan() == null || !task.getPlan().getUserId().equals(userId)) {
+            throw new com.dailyeng.common.exception.UnauthorizedException("You can only access your own study tasks");
+        }
+
+        return task;
     }
 
     private StudyPlan createDefaultPlan(String userId, String language) {
