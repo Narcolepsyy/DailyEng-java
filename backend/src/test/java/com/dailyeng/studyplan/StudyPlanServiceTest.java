@@ -218,11 +218,13 @@ class StudyPlanServiceTest {
         @Test
         @DisplayName("toggles task completion")
         void toggle() {
+            var plan = createTestPlan();
             var task = createTestTask(TASK_ID, TaskType.vocab, "Learn Words", false);
+            task.setPlan(plan);
             when(studyTaskRepository.findById(TASK_ID)).thenReturn(Optional.of(task));
             when(studyTaskRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-            var result = studyPlanService.toggleTaskCompletion(TASK_ID, new ToggleTaskRequest(true));
+            var result = studyPlanService.toggleTaskCompletion(USER_ID, TASK_ID, new ToggleTaskRequest(true));
 
             assertTrue(result.completed());
             verify(studyTaskRepository).save(task);
@@ -234,7 +236,20 @@ class StudyPlanServiceTest {
             when(studyTaskRepository.findById(TASK_ID)).thenReturn(Optional.empty());
 
             assertThrows(ResourceNotFoundException.class,
-                    () -> studyPlanService.toggleTaskCompletion(TASK_ID, new ToggleTaskRequest(true)));
+                    () -> studyPlanService.toggleTaskCompletion(USER_ID, TASK_ID, new ToggleTaskRequest(true)));
+        }
+
+        @Test
+        @DisplayName("throws when task belongs to different user")
+        void unauthorized() {
+            var plan = createTestPlan();
+            plan.setUserId("different_user");
+            var task = createTestTask(TASK_ID, TaskType.vocab, "Learn Words", false);
+            task.setPlan(plan);
+            when(studyTaskRepository.findById(TASK_ID)).thenReturn(Optional.of(task));
+
+            assertThrows(com.dailyeng.common.exception.UnauthorizedException.class,
+                    () -> studyPlanService.toggleTaskCompletion(USER_ID, TASK_ID, new ToggleTaskRequest(true)));
         }
     }
 
