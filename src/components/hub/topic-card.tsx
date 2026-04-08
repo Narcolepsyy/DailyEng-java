@@ -129,6 +129,8 @@ export const TopicCard = memo(function TopicCard({
     <Card className="group relative overflow-hidden rounded-3xl border-2 border-border bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-primary-300 flex flex-col min-w-[280px] h-[420px]">
       <button
         onClick={handleBookmarkClick}
+        aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
+        title={isBookmarked ? "Remove bookmark" : "Add bookmark"}
         className={`absolute top-3 right-3 z-10 p-2 rounded-full transition-all duration-200 cursor-pointer ${
           isBookmarked
             ? "bg-primary-500 text-white shadow-md"
