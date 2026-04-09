@@ -15,3 +15,6 @@
 ## 2026-04-05 - Add accessible labels to microphone buttons in practice mode
 **Learning:** Found that custom practice mode components (`GrammarPracticeMode.tsx` and `VocabPracticeMode.tsx`) used interactive `Button` elements with `size="icon"` for microphone recording but lacked `aria-label`s, rendering them inaccessible to screen readers.
 **Action:** Always ensure that icon-only interactive buttons in newly created or complex interactive modes have both an `aria-label` for screen reader support and a `title` for visual tooltips.
+## 2024-10-27 - Icon-only buttons in dense data views
+**Learning:** Icon-only buttons in dense data views (like dictionary tables) often have `aria-label` for screen readers but lack `title` attributes, making their exact function ambiguous to sighted users hovering over them.
+**Action:** Ensure both `aria-label` and `title` are added to icon-only action buttons in tables/lists to serve both screen reader and mouse users.

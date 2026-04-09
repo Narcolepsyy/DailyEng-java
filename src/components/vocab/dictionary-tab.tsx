@@ -164,6 +164,7 @@ export function DictionaryTab({
                       variant="ghost"
                       size="icon"
                       aria-label="Edit word"
+                      title="Edit word"
                       className="h-8 w-8 cursor-pointer"
                     >
                       <Edit className="h-4 w-4" />
