@@ -27,6 +27,10 @@ public class DictionaryController extends BaseController {
     public ResponseEntity<DictionaryWordSearchResponse> searchWords(
             @RequestParam("q") String query,
             @RequestParam(value = "limit", defaultValue = "10") int limit) {
+        // 🛡️ Sentinel: Prevent DoS from massive string allocations and expensive database LIKE queries
+        if (query != null && query.length() > 100) {
+            return ResponseEntity.badRequest().build();
+        }
         requireUserId(); // ensure authenticated
         return ResponseEntity.ok(dictionaryService.searchWords(query, limit));
     }
@@ -39,6 +43,10 @@ public class DictionaryController extends BaseController {
     public ResponseEntity<DictionaryGrammarSearchResponse> searchGrammar(
             @RequestParam("q") String query,
             @RequestParam(value = "limit", defaultValue = "10") int limit) {
+        // 🛡️ Sentinel: Prevent DoS from massive string allocations and expensive database LIKE queries
+        if (query != null && query.length() > 100) {
+            return ResponseEntity.badRequest().build();
+        }
         requireUserId(); // ensure authenticated
         return ResponseEntity.ok(dictionaryService.searchGrammar(query, limit));
     }
