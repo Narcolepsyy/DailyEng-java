@@ -18,3 +18,6 @@
 ## 2024-10-27 - Icon-only buttons in dense data views
 **Learning:** Icon-only buttons in dense data views (like dictionary tables) often have `aria-label` for screen readers but lack `title` attributes, making their exact function ambiguous to sighted users hovering over them.
 **Action:** Ensure both `aria-label` and `title` are added to icon-only action buttons in tables/lists to serve both screen reader and mouse users.
+## 2026-04-11 - Icon-only buttons in dense data views
+**Learning:** Icon-only buttons in dense data views (like dictionary tables) often have `aria-label` for screen readers but lack `title` attributes, making their exact function ambiguous to sighted users hovering over them.
+**Action:** Ensure both `aria-label` and `title` are added to icon-only action buttons in tables/lists to serve both screen reader and mouse users.
