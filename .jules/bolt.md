@@ -42,3 +42,6 @@
 ## 2025-03-03 - O(N) Array Aggregation
 **Learning:** React re-renders or utility logic executing multiple O(N) Array passes using `.filter().length` in sequence on the same dataset creates an easily-fixable performance bottleneck.
 **Action:** Always refactor sequential `.filter().length` aggregations into a single loop (e.g. `for` or `.reduce`) to traverse the array exactly once.
+## 2024-04-11 - [Optimize multiple sequential Array.filter() calls in useMemo]
+**Learning:** Found a pattern where derived statistics or grouped objects are computed using multiple sequential `.filter()` calls within a single `useMemo` block (e.g., `groupedTasks = { morning: tasks.filter(...), afternoon: tasks.filter(...) }`). In React applications that handle long lists or large arrays on the client side, this O(M * N) complexity (where M is the number of filters and N is array size) causes unnecessary performance overhead during recalculation, especially since `useMemo` might re-trigger when shallow-compared dependencies update.
+**Action:** When calculating multiple derived properties (like categories, counts, or sums) from a single list, replace the redundant `filter()` and `reduce()` passes with a single O(N) `for` loop or `reduce` pass to minimize array traversals.
