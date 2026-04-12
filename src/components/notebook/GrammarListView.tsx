@@ -70,7 +70,7 @@ export function GrammarListView({
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label="Filter by level" className="h-9 w-9 rounded-full hover:bg-primary-50 cursor-pointer relative">
+            <Button variant="ghost" size="icon" aria-label="Filter by level" title="Filter by level" className="h-9 w-9 rounded-full hover:bg-primary-50 cursor-pointer relative">
               <Filter className="h-4 w-4 text-gray-500" />
               {levelFilter.length > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-primary-500 border-2 border-white" />
@@ -116,7 +116,7 @@ export function GrammarListView({
                     />
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" aria-label="Delete grammar rule"
+                <Button variant="ghost" size="icon" aria-label="Delete grammar rule" title="Delete grammar rule"
                   className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-50 transition-all cursor-pointer"
                   onClick={() => onDelete(item.id)}>
                   <Trash2 className="h-4 w-4 text-gray-400 hover:text-red-500" />
@@ -139,7 +139,7 @@ export function GrammarListView({
                   <div key={idx} className="bg-white/60 rounded-lg p-2.5 space-y-0.5 border border-gray-100/60">
                     <p className="text-sm text-gray-800 flex items-center gap-2">
                       <span className="text-primary-400">→</span> {ex.en}
-                      <Button variant="ghost" size="icon" aria-label="Listen to pronunciation" className="h-6 w-6 cursor-pointer" onClick={() => speakText(ex.en)}>
+                      <Button variant="ghost" size="icon" aria-label="Listen to pronunciation" title="Listen to pronunciation" className="h-6 w-6 cursor-pointer" onClick={() => speakText(ex.en)}>
                         <Volume2 className="h-3 w-3 text-gray-400" />
                       </Button>
                     </p>
