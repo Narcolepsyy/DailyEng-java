@@ -50,6 +50,9 @@ public class VocabController extends BaseController {
     public ResponseEntity<List<VocabTopicListItem>> searchTopics(
             @RequestHeader(value = "X-Learning-Language", defaultValue = "en") String language,
             @RequestParam String q) {
+        if (q != null && q.length() > 100) {
+            throw new com.dailyeng.common.exception.BadRequestException("Search query is too long");
+        }
         return ResponseEntity.ok(vocabService.searchTopics(q, language));
     }
 

@@ -55,6 +55,9 @@ public class SpeakingController extends BaseController {
     public ResponseEntity<List<ScenarioListItem>> searchScenarios(
             @RequestHeader(value = "X-Learning-Language", defaultValue = "en") String language,
             @RequestParam String q) {
+        if (q != null && q.length() > 100) {
+            throw new com.dailyeng.common.exception.BadRequestException("Search query is too long");
+        }
         return ResponseEntity.ok(speakingService.searchScenarios(q, language));
     }
 
