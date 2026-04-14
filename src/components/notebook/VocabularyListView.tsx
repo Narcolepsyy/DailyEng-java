@@ -90,7 +90,7 @@ export function VocabularyListView({
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Filter words" className="h-9 w-9 relative rounded-full hover:bg-primary-50 cursor-pointer">
+              <Button variant="ghost" size="icon" aria-label="Filter words" title="Filter words" className="h-9 w-9 relative rounded-full hover:bg-primary-50 cursor-pointer">
                 <Filter className="h-4 w-4 text-gray-500" />
                 {hasActiveFilters && (
                   <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-primary-500 border-2 border-white" />
@@ -147,7 +147,7 @@ export function VocabularyListView({
               <div className="flex items-center gap-2 mb-1">
                 <h3 className="notebook-heading text-base font-bold text-gray-900 truncate">{item.word}</h3>
                 <span className="text-xs text-gray-400 font-mono">{item.pronunciation}</span>
-                <Button variant="ghost" size="icon" aria-label="Listen to pronunciation" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                <Button variant="ghost" size="icon" aria-label="Listen to pronunciation" title="Listen to pronunciation" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                   onClick={() => speakText(item.word)}>
                   <Volume2 className="h-3.5 w-3.5 text-gray-400" />
                 </Button>
@@ -176,15 +176,15 @@ export function VocabularyListView({
 
             {/* Actions */}
             <div className="flex items-center gap-0.5 flex-shrink-0">
-              <Button variant="ghost" size="icon" aria-label={starredItems.has(item.id) ? "Unstar word" : "Star word"} className="h-8 w-8 rounded-full hover:bg-yellow-50 cursor-pointer"
+              <Button variant="ghost" size="icon" aria-label={starredItems.has(item.id) ? "Unstar word" : "Star word"} title={starredItems.has(item.id) ? "Unstar word" : "Star word"} className="h-8 w-8 rounded-full hover:bg-yellow-50 cursor-pointer"
                 onClick={() => setStarredItems(p => { const s = new Set(p); s.has(item.id) ? s.delete(item.id) : s.add(item.id); return s })}>
                 <Star className={`h-4 w-4 transition-colors ${starredItems.has(item.id) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`} />
               </Button>
-              <Button variant="ghost" size="icon" aria-label="Edit word" className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+              <Button variant="ghost" size="icon" aria-label="Edit word" title="Edit word" className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                 onClick={() => onEdit(item)}>
                 <Edit className="h-3.5 w-3.5 text-gray-400" />
               </Button>
-              <Button variant="ghost" size="icon" aria-label="Delete word" className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-50 transition-all cursor-pointer"
+              <Button variant="ghost" size="icon" aria-label="Delete word" title="Delete word" className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-50 transition-all cursor-pointer"
                 onClick={() => onDelete(item.id)}>
                 <Trash2 className="h-3.5 w-3.5 text-gray-400 hover:text-red-500" />
               </Button>
