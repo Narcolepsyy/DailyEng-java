@@ -18,3 +18,6 @@
 ## 2024-10-27 - Icon-only buttons in dense data views
 **Learning:** Icon-only buttons in dense data views (like dictionary tables) often have `aria-label` for screen readers but lack `title` attributes, making their exact function ambiguous to sighted users hovering over them.
 **Action:** Ensure both `aria-label` and `title` are added to icon-only action buttons in tables/lists to serve both screen reader and mouse users.
+## 2026-05-19 - Added title attributes to icon-only buttons in VocabularyListView
+**Learning:** Found multiple `Button` components with `size="icon"` in `VocabularyListView.tsx` that had `aria-label`s for screen readers but lacked `title` attributes for sighted users, reducing discoverability.
+**Action:** Always add `title` attributes alongside `aria-label`s for icon-only buttons to provide visual tooltips on hover.
