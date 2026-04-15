@@ -50,6 +50,10 @@ public class VocabController extends BaseController {
     public ResponseEntity<List<VocabTopicListItem>> searchTopics(
             @RequestHeader(value = "X-Learning-Language", defaultValue = "en") String language,
             @RequestParam String q) {
+        // 🛡️ Sentinel: Enforce length limit on search query to prevent DoS
+        if (q != null && q.length() > 100) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok(vocabService.searchTopics(q, language));
     }
 
