@@ -98,6 +98,7 @@ export function ShadowingPopup({ text, translation, isOpen, onClose, onComplete 
                             <Button
                                 variant="outline"
                                 size="lg"
+                                aria-label="Play original audio"
                                 className="rounded-full w-16 h-16 p-0 border-2"
                                 onClick={handlePlayAudio}
                                 disabled={isRecording || isAnalyzing}
@@ -108,6 +109,7 @@ export function ShadowingPopup({ text, translation, isOpen, onClose, onComplete 
                             <Button
                                 variant={isRecording ? "destructive" : "default"}
                                 size="lg"
+                                aria-label={isRecording ? "Stop recording" : "Start recording"}
                                 className={cn(
                                     "rounded-full w-16 h-16 p-0 shadow-lg transition-all duration-300",
                                     isRecording && "scale-110 ring-4 ring-red-200"

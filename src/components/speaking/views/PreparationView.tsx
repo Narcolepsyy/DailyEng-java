@@ -86,6 +86,7 @@ export default function PreparationView({
               <Button
                 variant="outline"
                 size="lg"
+                aria-label="View history"
                 className="px-6 bg-transparent"
                 onClick={onViewHistory}
               >

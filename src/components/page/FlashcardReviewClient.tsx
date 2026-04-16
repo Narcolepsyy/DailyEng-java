@@ -418,6 +418,7 @@ export default function FlashcardReviewClient({ notebookItems }: FlashcardReview
                     size="lg"
                     variant={isRecording ? "destructive" : "default"}
                     onClick={handleRecording}
+                    aria-label={isRecording ? "Stop recording" : "Start recording"}
                     className="h-24 w-24 rounded-full"
                   >
                     {isRecording ? <Square className="h-10 w-10" /> : <Mic className="h-10 w-10" />}

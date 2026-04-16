@@ -21,3 +21,6 @@
 ## 2026-05-19 - Added title attributes to icon-only buttons in VocabularyListView
 **Learning:** Found multiple `Button` components with `size="icon"` in `VocabularyListView.tsx` that had `aria-label`s for screen readers but lacked `title` attributes for sighted users, reducing discoverability.
 **Action:** Always add `title` attributes alongside `aria-label`s for icon-only buttons to provide visual tooltips on hover.
+## 2025-02-14 - Dynamic ARIA labels for stateful buttons
+**Learning:** For components that toggle state (like a microphone button switching between "Start recording" and "Stop recording"), the `aria-label` must dynamically evaluate the state variable (e.g., `aria-label={isRecording ? "Stop recording" : "Start recording"}`) to keep screen readers accurately informed of the current action.
+**Action:** When adding ARIA labels to buttons containing conditional icons (like `<Mic/>` vs `<Square/>`), always ensure the label is also conditional based on the same state.
