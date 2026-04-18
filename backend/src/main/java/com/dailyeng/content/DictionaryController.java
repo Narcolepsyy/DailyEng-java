@@ -24,10 +24,16 @@ public class DictionaryController extends BaseController {
      * Search vocabulary words by keyword (case-insensitive substring match).
      */
     @GetMapping("/words/search")
-    public ResponseEntity<DictionaryWordSearchResponse> searchWords(
+    public ResponseEntity<?> searchWords(
             @RequestParam("q") String query,
             @RequestParam(value = "limit", defaultValue = "10") int limit) {
         requireUserId(); // ensure authenticated
+
+        // 🛡️ Sentinel: Prevent Memory Exhaustion / DoS from massive search queries
+        if (query != null && query.length() > 100) {
+            return ResponseEntity.badRequest().body("Search query exceeds maximum length of 100 characters");
+        }
+
         return ResponseEntity.ok(dictionaryService.searchWords(query, limit));
     }
 
@@ -36,10 +42,16 @@ public class DictionaryController extends BaseController {
      * Search grammar rules by title (case-insensitive substring match).
      */
     @GetMapping("/grammar/search")
-    public ResponseEntity<DictionaryGrammarSearchResponse> searchGrammar(
+    public ResponseEntity<?> searchGrammar(
             @RequestParam("q") String query,
             @RequestParam(value = "limit", defaultValue = "10") int limit) {
         requireUserId(); // ensure authenticated
+
+        // 🛡️ Sentinel: Prevent Memory Exhaustion / DoS from massive search queries
+        if (query != null && query.length() > 100) {
+            return ResponseEntity.badRequest().body("Search query exceeds maximum length of 100 characters");
+        }
+
         return ResponseEntity.ok(dictionaryService.searchGrammar(query, limit));
     }
 }

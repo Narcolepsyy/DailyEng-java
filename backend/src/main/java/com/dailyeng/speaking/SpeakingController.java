@@ -52,9 +52,13 @@ public class SpeakingController extends BaseController {
     }
 
     @GetMapping("/scenarios/search")
-    public ResponseEntity<List<ScenarioListItem>> searchScenarios(
+    public ResponseEntity<?> searchScenarios(
             @RequestHeader(value = "X-Learning-Language", defaultValue = "en") String language,
             @RequestParam String q) {
+        // 🛡️ Sentinel: Prevent Memory Exhaustion / DoS from massive search queries
+        if (q != null && q.length() > 100) {
+            return ResponseEntity.badRequest().body("Search query exceeds maximum length of 100 characters");
+        }
         return ResponseEntity.ok(speakingService.searchScenarios(q, language));
     }
 

@@ -21,12 +21,17 @@ public class NotificationController extends BaseController {
 
     /** GET /api/notifications */
     @GetMapping
-    public ResponseEntity<GetNotificationsResponse> getNotifications(
+    public ResponseEntity<?> getNotifications(
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer limit,
             @RequestParam(required = false, defaultValue = "newest") String sortOrder,
             @RequestParam(required = false, defaultValue = "") String searchQuery
     ) {
+        // 🛡️ Sentinel: Prevent Memory Exhaustion / DoS from massive search queries
+        if (searchQuery != null && searchQuery.length() > 100) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Search query exceeds maximum length of 100 characters"));
+        }
+
         String userId = requireUserId();
         var options = new GetNotificationsOptions(page, limit, sortOrder, searchQuery);
         return ResponseEntity.ok(notificationService.getNotifications(userId, options));
