@@ -186,6 +186,8 @@ export default function BuildPlanPageClient({ questions, allCourses }: BuildPlan
               variant="ghost"
               size="icon"
               className="rounded-full hover:bg-primary-100 cursor-pointer"
+              aria-label="Close"
+              title="Close"
             >
               <X className="w-5 h-5" />
             </Button>
