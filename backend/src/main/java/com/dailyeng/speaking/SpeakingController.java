@@ -55,6 +55,10 @@ public class SpeakingController extends BaseController {
     public ResponseEntity<List<ScenarioListItem>> searchScenarios(
             @RequestHeader(value = "X-Learning-Language", defaultValue = "en") String language,
             @RequestParam String q) {
+        // 🛡️ Sentinel: Prevent DoS from massive string allocations and LIKE query
+        if (q != null && q.length() > 100) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok(speakingService.searchScenarios(q, language));
     }
 
