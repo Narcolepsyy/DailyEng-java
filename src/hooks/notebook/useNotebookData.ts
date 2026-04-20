@@ -117,24 +117,34 @@ export function useNotebookData({
   // ── Due count ──
   const dueCount = useMemo(() => {
     const now = new Date()
-    return vocabularyItems.filter(item => item.nextReview && new Date(item.nextReview) <= now).length
+    // ⚡ Bolt: Replace .filter().length with a single loop to avoid intermediate array allocation
+    let count = 0
+    for (let i = 0; i < vocabularyItems.length; i++) {
+      const item = vocabularyItems[i]
+      if (item.nextReview && new Date(item.nextReview) <= now) {
+        count++
+      }
+    }
+    return count
   }, [vocabularyItems])
 
   // ── Stats ──
   // ⚡ Bolt: Wrap getStats in useCallback to prevent stats from being recalculated on every render in useNotebookPage
   const getStats = useCallback((collectionType: CollectionType, selectedCollection: string) => {
-    const items = collectionType === "vocabulary"
-      ? vocabularyItems.filter(i => i.collectionId === selectedCollection)
-      : grammarItems.filter(i => i.collectionId === selectedCollection)
+    const sourceItems = collectionType === "vocabulary" ? vocabularyItems : grammarItems
 
-    // ⚡ Bolt: Replace multiple O(N) filters and reduce with a single O(N) pass
+    // ⚡ Bolt: Avoid intermediate array allocation from .filter() by skipping non-matching items directly in the loop
+    let total = 0
     let mastered = 0
     let learning = 0
     let newItems = 0
     let masterySum = 0
 
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i]
+    for (let i = 0; i < sourceItems.length; i++) {
+      const item = sourceItems[i]
+      if (item.collectionId !== selectedCollection) continue
+
+      total++
       masterySum += item.masteryLevel
 
       if (item.masteryLevel >= 80) mastered++
@@ -142,7 +152,6 @@ export function useNotebookData({
       else newItems++
     }
 
-    const total = items.length
     const avgMastery = total > 0 ? Math.round(masterySum / total) : 0
 
     return { total, mastered, learning, newItems, avgMastery }
