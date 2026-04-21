@@ -21,3 +21,6 @@
 ## 2026-05-19 - Added title attributes to icon-only buttons in VocabularyListView
 **Learning:** Found multiple `Button` components with `size="icon"` in `VocabularyListView.tsx` that had `aria-label`s for screen readers but lacked `title` attributes for sighted users, reducing discoverability.
 **Action:** Always add `title` attributes alongside `aria-label`s for icon-only buttons to provide visual tooltips on hover.
+## $(date +%Y-%m-%d) - Add accessible labels to close button in BuildPlanPageClient
+**Learning:** Found an `aria-label` missing on a `Button` component that only contained an `<X>` icon in `BuildPlanPageClient.tsx`. This makes the button's action ("Close") completely invisible to screen readers, and lacks a `title` for visual tooltips.
+**Action:** Always verify `size="icon"` buttons, especially common ones like `<X>` for close actions, have explicit `aria-label` and `title` attributes.
