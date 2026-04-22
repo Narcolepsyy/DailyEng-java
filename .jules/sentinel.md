@@ -21,3 +21,8 @@
 **Vulnerability:** The endpoints `/study/tasks/{taskId}/toggle` and `/study/tasks/{taskId}/time` allowed any authenticated user to toggle or modify the time of study tasks that did not belong to them by simply providing a valid `taskId`. The underlying service method `findTaskById` fetched the task by its ID without verifying ownership.
 **Learning:** In Spring Boot services handling updates for objects based on IDs, failing to verify ownership leads to Insecure Direct Object Reference (IDOR) vulnerabilities, allowing users to modify arbitrary user data.
 **Prevention:** Always verify resource ownership. When fetching an entity (like `StudyTask`) by ID for modification, assert that the entity belongs to the currently authenticated `userId` (e.g., `if (!task.getPlan().getUserId().equals(userId)) throw new UnauthorizedException(...)`) before allowing the operation.
+
+## 2026-04-22 - [Input Validation] Missing input length limit on `q` and `searchQuery` string parameters
+**Vulnerability:** Controller string request parameters (`@RequestParam String q` and `@RequestParam String searchQuery`) used for database LIKE queries lacked length validation. This could allow attackers to send massive strings, causing Denial of Service (DoS) due to expensive database operations and large memory allocations.
+**Learning:** Even simple search endpoints are susceptible to DoS if they allow arbitrarily large string inputs. Database LIKE queries with huge strings become extremely slow and resource-intensive.
+**Prevention:** Always enforce a reasonable maximum length (e.g., 100 characters) on string inputs used for searching or filtering, directly within the controller logic or via `@Size` validation annotations.
