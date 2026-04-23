@@ -21,3 +21,6 @@
 ## 2026-05-19 - Added title attributes to icon-only buttons in VocabularyListView
 **Learning:** Found multiple `Button` components with `size="icon"` in `VocabularyListView.tsx` that had `aria-label`s for screen readers but lacked `title` attributes for sighted users, reducing discoverability.
 **Action:** Always add `title` attributes alongside `aria-label`s for icon-only buttons to provide visual tooltips on hover.
+## $(date +%Y-%m-%d) - Knowledge Graph Control Tooltips
+**Learning:** Found multiple `Button` components with `size="icon"` in `knowledge-graph.tsx` that had `aria-label`s for screen readers but lacked `title` attributes for sighted users, reducing discoverability of the controls.
+**Action:** Always add `title` attributes alongside `aria-label`s for icon-only action buttons to provide visual tooltips on hover.

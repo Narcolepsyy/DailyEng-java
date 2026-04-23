@@ -469,6 +469,7 @@ export function KnowledgeGraph({ data, isLoading }: KnowledgeGraphProps) {
           variant="ghost"
           size="icon"
           aria-label="Zoom out"
+          title="Zoom out"
           onClick={() => setScale((s) => Math.max(s - 0.15, 0.15))}
           className="h-8 w-8 rounded-full hover:bg-muted text-muted-foreground"
         >
@@ -481,6 +482,7 @@ export function KnowledgeGraph({ data, isLoading }: KnowledgeGraphProps) {
           variant="ghost"
           size="icon"
           aria-label="Zoom in"
+          title="Zoom in"
           onClick={() => setScale((s) => Math.min(s + 0.15, 4))}
           className="h-8 w-8 rounded-full hover:bg-muted text-muted-foreground"
         >
@@ -491,6 +493,7 @@ export function KnowledgeGraph({ data, isLoading }: KnowledgeGraphProps) {
           variant="ghost"
           size="icon"
           aria-label="Reset view"
+          title="Reset view"
           onClick={handleReset}
           className="h-8 w-8 rounded-full hover:bg-muted text-muted-foreground"
         >
@@ -510,6 +513,7 @@ export function KnowledgeGraph({ data, isLoading }: KnowledgeGraphProps) {
           variant="ghost"
           size="icon"
           aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
           onClick={() => setIsFullscreen(!isFullscreen)}
           className="h-8 w-8 rounded-full hover:bg-muted text-muted-foreground"
         >
