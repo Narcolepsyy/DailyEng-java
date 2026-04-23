@@ -48,3 +48,6 @@
 ## 2024-05-18 - Optimize Vocab Graph Stats Computation
 **Learning:** In the `src/actions/vocab-graph.ts` server action, the final stats object was calculated by traversing the `nodes` array four separate times using `.filter().length`. In a graph with potentially thousands of nodes, this causes unnecessary O(N) traversals and redundant array allocations for the intermediate `.filter()` results. Consolidating these loops into a single O(N) pass significantly reduces CPU overhead and garbage collection pressure in Node.js/Next.js.
 **Action:** When computing multiple derived values or counts from a single array in server actions, avoid chaining multiple `.filter().length` calls. Always use a single `for` loop or `.reduce()` to iterate through the array exactly once.
+## 2025-05-19 - [Optimized O(N*M) to O(N) by hoisting toLowerCase]
+**Learning:** In React Client Components that filter large arrays based on search queries, placing string manipulation methods like `toLowerCase()` inside the `filter()` callback forces the string to be re-evaluated for every item in the list, creating unnecessary string allocations and turning a simple O(N) array scan into an O(N*M) operation.
+**Action:** Always hoist loop-invariant computations, such as `searchQuery.toLowerCase()`, outside of array iteration loops like `.filter()` or `.map()` to prevent redundant processing.
