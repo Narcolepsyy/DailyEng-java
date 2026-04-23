@@ -27,6 +27,9 @@ public class NotificationController extends BaseController {
             @RequestParam(required = false, defaultValue = "newest") String sortOrder,
             @RequestParam(required = false, defaultValue = "") String searchQuery
     ) {
+        if (searchQuery != null && searchQuery.length() > 100) {
+            return ResponseEntity.badRequest().build();
+        }
         String userId = requireUserId();
         var options = new GetNotificationsOptions(page, limit, sortOrder, searchQuery);
         return ResponseEntity.ok(notificationService.getNotifications(userId, options));
