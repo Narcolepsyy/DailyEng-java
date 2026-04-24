@@ -21,3 +21,8 @@
 **Vulnerability:** The endpoints `/study/tasks/{taskId}/toggle` and `/study/tasks/{taskId}/time` allowed any authenticated user to toggle or modify the time of study tasks that did not belong to them by simply providing a valid `taskId`. The underlying service method `findTaskById` fetched the task by its ID without verifying ownership.
 **Learning:** In Spring Boot services handling updates for objects based on IDs, failing to verify ownership leads to Insecure Direct Object Reference (IDOR) vulnerabilities, allowing users to modify arbitrary user data.
 **Prevention:** Always verify resource ownership. When fetching an entity (like `StudyTask`) by ID for modification, assert that the entity belongs to the currently authenticated `userId` (e.g., `if (!task.getPlan().getUserId().equals(userId)) throw new UnauthorizedException(...)`) before allowing the operation.
+
+## 2024-05-27 - Prevent DoS from unconstrained String Search Parameters
+**Vulnerability:** Internal search endpoints using raw `String` mapped from `@RequestParam` in Spring Boot controllers lacked length limitations.
+**Learning:** In the Spring Boot backend, explicitly enforce length limits (e.g., `q.length() > 100`) on string parameters for internal search endpoints (`@RequestParam String q` or `searchQuery`) to prevent DoS vulnerabilities from massive string allocations and expensive database `LIKE` query operations. Without these bounds, attackers could flood endpoints with large payloads consuming resources and degrading performance.
+**Prevention:** Add standard validation checks or annotations (`@Size(max=...)`) to any input parameter that directly queries databases, especially those generating `LIKE` constraints or allocating significant strings in-memory.
