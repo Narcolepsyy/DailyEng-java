@@ -282,6 +282,8 @@ export default function GrammarPageClient({
             <button
               onClick={() => setSearchQuery("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-primary-100 transition-colors cursor-pointer"
+              aria-label="Clear search"
+              title="Clear search"
             >
               <X className="h-4 w-4 text-primary-500" />
             </button>

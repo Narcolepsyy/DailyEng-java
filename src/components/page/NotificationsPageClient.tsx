@@ -281,6 +281,8 @@ export default function NotificationsPageClient({
                     <button
                       onClick={clearSearch}
                       className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+                      aria-label="Clear search"
+                      title="Clear search"
                     >
                       <X className="h-4 w-4 text-muted-foreground" />
                     </button>

@@ -21,3 +21,6 @@
 ## 2026-05-19 - Added title attributes to icon-only buttons in VocabularyListView
 **Learning:** Found multiple `Button` components with `size="icon"` in `VocabularyListView.tsx` that had `aria-label`s for screen readers but lacked `title` attributes for sighted users, reducing discoverability.
 **Action:** Always add `title` attributes alongside `aria-label`s for icon-only buttons to provide visual tooltips on hover.
+## 2026-06-25 - Missing accessibility labels on conditional floating elements
+**Learning:** Found multiple instances where conditionally rendered "Clear search" buttons (`<button>` with an `X` icon inside a relative wrapper) lacked both `aria-label`s and `title` attributes. Sighted users could see the 'X' appearing when typing, but screen reader users had no context.
+**Action:** When creating floating or conditionally rendered interactive elements (like clear input buttons), always ensure they are accessible out-of-the-box with `aria-label` and `title` attributes.
