@@ -202,12 +202,13 @@ export default function GrammarPageClient({
   // Filter topics based on search or normal mode (similar to Speaking Room)
   // ⚡ Bolt: Memoize filtered topics to prevent O(N) re-filtering on every render (e.g., when toggling UI tabs)
   const filteredTopics = useMemo(() => {
+    const lowerSearch = searchQuery.toLowerCase();
     return liveTopics.filter((topic) => {
       // In search mode, search ALL topics
       if (isSearchMode) {
         const matchesSearch =
-          topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          topic.description.toLowerCase().includes(searchQuery.toLowerCase());
+          topic.title.toLowerCase().includes(lowerSearch) ||
+          topic.description.toLowerCase().includes(lowerSearch);
         return matchesSearch;
       }
 
