@@ -144,34 +144,43 @@ public class SrsService {
                         return new ReviewStatsResponse(0, 0, 0, 0, 0.0, 0);
                 }
 
-                int dueToday = (int) allProgress.stream()
-                                .filter(p -> p.getNextReview() != null && p.getNextReview().isBefore(now))
-                                .count();
+                int dueToday = 0;
+                int dueThisWeek = 0;
+                int totalReviewed = 0;
+                int masteredCount = 0;
+                int newCount = 0;
+                double totalRetention = 0.0;
+                int retentionCount = 0;
 
-                int dueThisWeek = (int) allProgress.stream()
-                                .filter(p -> p.getNextReview() != null && p.getNextReview().isBefore(endOfWeek))
-                                .count();
+                // ⚡ Bolt: Consolidated multiple sequential stream().filter() calls into a single O(N) pass to minimize traversals
+                for (var p : allProgress) {
+                        if (p.getNextReview() != null) {
+                                if (p.getNextReview().isBefore(now)) {
+                                        dueToday++;
+                                }
+                                if (p.getNextReview().isBefore(endOfWeek)) {
+                                        dueThisWeek++;
+                                }
+                        }
 
-                int totalReviewed = (int) allProgress.stream()
-                                .filter(p -> p.getSrsState() != SrsState.NEW)
-                                .count();
+                        if (p.getSrsState() != SrsState.NEW) {
+                                totalReviewed++;
+                        } else {
+                                newCount++;
+                        }
 
-                int masteredCount = (int) allProgress.stream()
-                                .filter(p -> p.getMasteryLevel() >= MASTERY_THRESHOLD)
-                                .count();
+                        if (p.getMasteryLevel() >= MASTERY_THRESHOLD) {
+                                masteredCount++;
+                        }
 
-                int newCount = (int) allProgress.stream()
-                                .filter(p -> p.getSrsState() == SrsState.NEW)
-                                .count();
+                        if (p.getStability() > 0 && p.getLastReviewed() != null) {
+                                double elapsed = ChronoUnit.HOURS.between(p.getLastReviewed(), now) / 24.0;
+                                totalRetention += FsrsAlgorithm.retrievability(p.getStability(), elapsed);
+                                retentionCount++;
+                        }
+                }
 
-                double avgRetention = allProgress.stream()
-                                .filter(p -> p.getStability() > 0 && p.getLastReviewed() != null)
-                                .mapToDouble(p -> {
-                                        double elapsed = ChronoUnit.HOURS.between(p.getLastReviewed(), now) / 24.0;
-                                        return FsrsAlgorithm.retrievability(p.getStability(), elapsed);
-                                })
-                                .average()
-                                .orElse(0.0);
+                double avgRetention = retentionCount > 0 ? totalRetention / retentionCount : 0.0;
 
                 return new ReviewStatsResponse(
                                 dueToday, dueThisWeek, totalReviewed, masteredCount,
