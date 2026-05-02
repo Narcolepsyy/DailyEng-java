@@ -55,7 +55,7 @@ export function calculateNextReview(card: SRSCard, quality: ReviewQuality): SRSC
 export function getCardsDue(cards: SRSCard[]): SRSCard[] {
   const now = new Date()
   return cards
-    .filter((card) => card.nextReviewDate <= now)
+    .filter((card) => card.nextReviewDate.getTime() <= now.getTime())
     .sort((a, b) => a.nextReviewDate.getTime() - b.nextReviewDate.getTime())
 }
 
