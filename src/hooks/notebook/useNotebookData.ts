@@ -116,8 +116,14 @@ export function useNotebookData({
 
   // ── Due count ──
   const dueCount = useMemo(() => {
-    const now = new Date()
-    return vocabularyItems.filter(item => item.nextReview && new Date(item.nextReview) <= now).length
+    const nowTime = new Date().getTime()
+    // ⚡ Bolt: Replace .filter(...).length with a single in-place .reduce() loop to prevent unnecessary GC overhead
+    return vocabularyItems.reduce((count, item) => {
+      if (item.nextReview && new Date(item.nextReview).getTime() <= nowTime) {
+        return count + 1
+      }
+      return count
+    }, 0)
   }, [vocabularyItems])
 
   // ── Stats ──

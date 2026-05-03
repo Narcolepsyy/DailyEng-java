@@ -51,3 +51,6 @@
 ## 2026-05-18 - [Optimized Multiple Java Streams into Single Loop in SrsService]
 **Learning:** In Spring Boot applications, iterating over a collection from a repository (e.g., `allProgress.stream().filter(...).count()`) multiple times to calculate different overview statistics (dueToday, totalReviewed, masteredCount) results in O(k*N) complexity and creates redundant `Stream` and lambda object allocations. For large collections, this increases CPU time and JVM garbage collection pressure.
 **Action:** Always replace multiple sequential `stream().filter()` evaluations on the same collection with a single `for` loop to compute all derived metrics in exactly one O(N) pass.
+## 2024-05-03 - Prevent array allocation overhead in large list counts
+**Learning:** In Next.js client components processing large lists (like vocabulary items fetched from the server), calculating a count using `.filter(...).length` causes O(N) intermediate array allocation and significant GC overhead.
+**Action:** Always replace `.filter(...).length` with a single in-place `.reduce()` or `for` loop to prevent unnecessary Garbage Collection and memory allocations. Also always use `.getTime()` when comparing Dates inside these loops.
