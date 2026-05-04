@@ -138,6 +138,7 @@ export function UserProfileSidebar({
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploadingAvatar}
                   aria-label="Upload profile picture"
+                  title="Upload profile picture"
                 >
                   {isUploadingAvatar ? (
                     <Loader2 className="h-4 w-4 animate-spin text-primary-foreground" />
