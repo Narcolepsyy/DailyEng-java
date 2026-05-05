@@ -89,6 +89,8 @@ export function TestContent({
           {currentQ.type === "listening" && (
             <div className="flex items-center justify-center mb-6">
               <button onClick={onPlayAudio} disabled={isPlaying}
+                aria-label={isPlaying ? "Playing audio" : "Play audio"}
+                title={isPlaying ? "Playing audio" : "Play audio"}
                 className={`w-20 h-20 rounded-full flex items-center justify-center transition-all ${isPlaying ? "bg-primary-100" : "bg-primary-600 hover:bg-primary-700"}`}>
                 {isPlaying ? <Volume2 className="w-10 h-10 text-primary-600 animate-pulse" /> : <PlayCircle className="w-10 h-10 text-white" />}
               </button>
@@ -141,6 +143,8 @@ export function TestContent({
           ) : currentQ.type === "speaking" ? (
             <div className="flex flex-col items-center gap-4">
               <button onClick={onToggleRecording}
+                aria-label={isRecording ? "Stop recording" : selectedAnswer === "recorded" ? "Record again" : "Start recording"}
+                title={isRecording ? "Stop recording" : selectedAnswer === "recorded" ? "Record again" : "Start recording"}
                 className={`w-24 h-24 rounded-full flex items-center justify-center transition-all ${isRecording ? "bg-error-500 animate-pulse" : selectedAnswer === "recorded" ? "bg-success-500" : "bg-primary-600 hover:bg-primary-700"}`}>
                 {isRecording ? <MicOff className="w-10 h-10 text-white" /> : selectedAnswer === "recorded" ? <CheckCircle2 className="w-10 h-10 text-white" /> : <Mic className="w-10 h-10 text-white" />}
               </button>

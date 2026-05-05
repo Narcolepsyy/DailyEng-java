@@ -21,3 +21,6 @@
 ## 2026-05-19 - Added title attributes to icon-only buttons in VocabularyListView
 **Learning:** Found multiple `Button` components with `size="icon"` in `VocabularyListView.tsx` that had `aria-label`s for screen readers but lacked `title` attributes for sighted users, reducing discoverability.
 **Action:** Always add `title` attributes alongside `aria-label`s for icon-only buttons to provide visual tooltips on hover.
+## 2025-05-05 - [Add explicit ARIA labels and titles to icon-only test controls]
+**Learning:** Icon-only buttons used for media controls (like playing audio or starting a recording) in testing interfaces are inaccessible to screen reader users and confusing visually without tooltips. Dynamically reflecting the state of the media control within the `aria-label` and `title` (e.g. changing from "Start recording" to "Stop recording") is essential for clear communication of the action's result.
+**Action:** Always provide explicit stateful `aria-label` and `title` attributes for all icon-only buttons, especially media or test control buttons, dynamically updating them to accurately describe the upcoming action or result of clicking them.
