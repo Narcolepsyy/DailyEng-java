@@ -410,9 +410,9 @@ export function useSpeakingSession(props: SpeakingSessionClientProps) {
     [turns, scores]
   );
 
-  // ⚡ Bolt: Memoize the filtered array length to avoid recalculating on unrelated renders
+  // ⚡ Bolt: Use a single in-place .reduce() loop to prevent unnecessary GC overhead from .filter().length
   const currentTurnNumber = useMemo(
-    () => turns.filter((t) => t.role === "user").length,
+    () => turns.reduce((count, t) => t.role === "user" ? count + 1 : count, 0),
     [turns]
   );
 
