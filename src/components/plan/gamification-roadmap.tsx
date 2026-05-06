@@ -395,7 +395,7 @@ export function GamificationRoadmap() {
                   <Zap className="w-3 h-3" /> {selectedModule.xp} XP earned
                 </span>
                 <span className="text-[10px] text-primary-600">
-                  {selectedModule.lessons.filter((l) => l.completed).length}/{selectedModule.lessons.length} lessons
+                  {selectedModule.lessons.reduce((count, l) => l.completed ? count + 1 : count, 0)}/{selectedModule.lessons.length} lessons
                 </span>
               </div>
             </div>
