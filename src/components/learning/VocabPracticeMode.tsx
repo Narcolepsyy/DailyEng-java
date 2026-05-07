@@ -152,7 +152,7 @@ export function VocabPracticeMode() {
                         </div>
                         <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                             <span className="block text-3xl font-bold text-green-600">
-                                {history.filter(h => h.score >= 80).length}
+                                {history.reduce((acc, h) => acc + (h.score >= 80 ? 1 : 0), 0)}
                             </span>
                             <span className="text-sm text-slate-500 font-medium">High Scores</span>
                         </div>

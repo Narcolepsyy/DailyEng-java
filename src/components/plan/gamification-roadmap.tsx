@@ -236,8 +236,14 @@ export function GamificationRoadmap() {
   const currentModule = mockModules.find((m) => m.status === "current") || null
   const [selectedModule, setSelectedModule] = useState<Module | null>(currentModule)
 
-  const completedModules = mockModules.filter((m) => m.status === "completed").length
-  const totalXP = mockModules.reduce((acc, m) => acc + m.xp, 0)
+  const { completedModules, totalXP } = mockModules.reduce(
+    (acc, m) => {
+      if (m.status === "completed") acc.completedModules++
+      acc.totalXP += m.xp
+      return acc
+    },
+    { completedModules: 0, totalXP: 0 }
+  )
 
   return (
     <div className="space-y-4">
@@ -395,7 +401,7 @@ export function GamificationRoadmap() {
                   <Zap className="w-3 h-3" /> {selectedModule.xp} XP earned
                 </span>
                 <span className="text-[10px] text-primary-600">
-                  {selectedModule.lessons.filter((l) => l.completed).length}/{selectedModule.lessons.length} lessons
+                  {selectedModule.lessons.reduce((acc, l) => acc + (l.completed ? 1 : 0), 0)}/{selectedModule.lessons.length} lessons
                 </span>
               </div>
             </div>

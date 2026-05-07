@@ -304,22 +304,26 @@ function ActivityHeatmap({ data }: { data: Record<string, number> }) {
 
   // ⚡ Bolt: Memoize expensive heatmap layout calculations to prevent recalculation on every tooltip hover
   const { totalLessons, activeDays, maxStreak, weeks, monthPositions } = useMemo(() => {
-    const totalLessons = Object.values(data).reduce((sum, count) => sum + count, 0);
-    const activeDays = Object.values(data).filter((count) => count > 0).length;
-
-    // Calculate max streak
+    // ⚡ Bolt: Calculate totalLessons, activeDays, and maxStreak in a single O(N) pass over sortedDates
     const sortedDates = Object.keys(data).sort();
+    let totalLessons = 0;
+    let activeDays = 0;
     let maxStreak = 0;
     let currentStreak = 0;
 
-    sortedDates.forEach((date) => {
-      if (data[date] > 0) {
+    for (let i = 0; i < sortedDates.length; i++) {
+      const count = data[sortedDates[i]];
+      totalLessons += count;
+      if (count > 0) {
+        activeDays++;
         currentStreak++;
-        maxStreak = Math.max(maxStreak, currentStreak);
+        if (currentStreak > maxStreak) {
+          maxStreak = currentStreak;
+        }
       } else {
         currentStreak = 0;
       }
-    });
+    }
 
     // Generate last 52 weeks of data (364 days)
     const today = new Date();
