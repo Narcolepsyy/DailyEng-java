@@ -12,9 +12,9 @@ export function SearchCommand() {
   const [query, setQuery] = useState("")
 
   const isImmersivePage =
-    pathname?.startsWith("/speaking/session/") ||
-    (pathname?.startsWith("/vocab/") && pathname !== "/vocab") ||
-    (pathname?.startsWith("/grammar/") && pathname !== "/grammar")
+    pathname?.startsWith("/speaking-room/session/") ||
+    (pathname?.startsWith("/vocabulary-hub/") && pathname !== "/vocabulary-hub") ||
+    (pathname?.startsWith("/grammar-hub/") && pathname !== "/grammar-hub")
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

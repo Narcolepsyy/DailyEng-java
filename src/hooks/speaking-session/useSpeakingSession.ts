@@ -244,7 +244,13 @@ export function useSpeakingSession(props: SpeakingSessionClientProps) {
 
       setTurns((prev) =>
         prev.map((t) =>
-          t.id === tempId ? { ...t, id: result.userTurnId } : t
+          t.id === tempId
+            ? {
+                ...t,
+                id: result.userTurnId,
+                relevanceHint: result.relevanceHint ?? undefined,
+              }
+            : t
         )
       );
 

@@ -69,7 +69,7 @@ public final class SpeakingDtos {
 
     public record SubmitTurnResponse(
             String aiResponse, String userTurnId, String aiTurnId,
-            boolean sessionComplete, String correctionHint
+            boolean sessionComplete, String correctionHint, String relevanceHint
     ) {}
 
     public record CustomScenarioResponse(ScenarioDetailResponse scenario, String sessionId) {}

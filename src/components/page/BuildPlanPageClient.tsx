@@ -138,28 +138,19 @@ const generateStudySchedule = async (
 export default function BuildPlanPageClient({ questions, allCourses }: BuildPlanPageClientProps) {
   const router = useRouter()
   const { user } = useAuth()
-  const [stage, setStage] = useState<"intro" | "questions" | "results" | "schedule">("intro")
+  const [stage, setStage] = useState<"intro" | "questions" | "schedule">("intro")
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState<Record<number, string[]>>({})
-  const [recommendedCourses, setRecommendedCourses] = useState<Course[]>([])
-  const [otherCourses, setOtherCourses] = useState<Course[]>([])
 
   // New State for Selection & Scheduling
-  const [selectedCourses, setSelectedCourses] = useState<string[]>([])
   const [selectedDays, setSelectedDays] = useState<number[]>([1, 3, 5]) // Default Mon, Wed, Fri
   const [isLoading, setIsLoading] = useState(false)
-
-  const toggleCourse = (courseId: string) => {
-    setSelectedCourses(prev =>
-      prev.includes(courseId) ? prev.filter(id => id !== courseId) : [...prev, courseId]
-    )
-  }
 
   const handleBuildPlan = async () => {
     setIsLoading(true);
     try {
-      await generateStudySchedule(user?.id || "", selectedCourses, selectedDays, answers);
-      router.push("/plan");
+      await generateStudySchedule(user?.id || "", [], selectedDays, answers);
+      router.push("/study-plan");
     } catch (error) {
       console.error("Failed to build plan:", error);
       alert("Something went wrong building your plan. Please try again.");
@@ -168,12 +159,6 @@ export default function BuildPlanPageClient({ questions, allCourses }: BuildPlan
     }
   }
 
-  // Effect to pre-select recommended courses when they are set
-  React.useEffect(() => {
-    if (recommendedCourses.length > 0) {
-      setSelectedCourses(recommendedCourses.map(c => c.id));
-    }
-  }, [recommendedCourses]);
 
   // Intro Screen
   if (stage === "intro") {
@@ -233,9 +218,9 @@ export default function BuildPlanPageClient({ questions, allCourses }: BuildPlan
 
             <Button
               size="lg"
-              variant={"default"}
+              variant="default"
               onClick={() => setStage("questions")}
-              className="bg-primary-400 hover:bg-primary-500 text-white px-8 py-6 text-lg rounded-xl transition-all"
+              className="bg-primary-500 hover:bg-primary-600 text-white px-8 py-6 text-lg rounded-xl transition-all"
             >
               Start Building My Plan
               <ArrowRight className="ml-2 w-5 h-5" />
@@ -273,8 +258,7 @@ export default function BuildPlanPageClient({ questions, allCourses }: BuildPlan
       if (currentQuestion < questions.length - 1) {
         setCurrentQuestion((prev) => prev + 1)
       } else {
-        generateRecommendations()
-        setStage("results")
+        setStage("schedule")
       }
     }
 
@@ -284,58 +268,6 @@ export default function BuildPlanPageClient({ questions, allCourses }: BuildPlan
       }
     }
 
-    const generateRecommendations = () => {
-      // Score each course based on user answers
-      const scoredCourses = allCourses.map((course) => {
-        let score = 0
-
-        // Goal matching (Q1)
-        const goals = answers[1] || []
-        if (goals.includes("exam") && course.category === "Exam Prep") score += 30
-        if (goals.includes("career") && (course.category === "Business" || course.id === "toeic-intensive")) score += 25
-        if (goals.includes("study") && (course.category === "Academic" || course.category === "Exam Prep")) score += 25
-
-        // Exam matching (Q2)
-        const exams = answers[2] || []
-        if (exams.includes("ielts") && course.id.includes("ielts")) score += 40
-        if (exams.includes("toefl") && course.id.includes("toefl")) score += 40
-        if (exams.includes("toeic") && course.id.includes("toeic")) score += 40
-
-        // Skills matching (Q5)
-        const skills = answers[5] || []
-        skills.forEach((skill) => {
-          if (course.skills.map((s) => s.toLowerCase()).includes(skill)) score += 15
-        })
-
-        // English type matching (Q6)
-        const englishType = answers[6] || []
-        if (englishType.includes("business") && course.category === "Business") score += 20
-        if (englishType.includes("academic") && course.category === "Academic") score += 20
-        if (englishType.includes("conversational") && course.category === "Speaking") score += 20
-
-        // Challenges matching (Q9)
-        const challenges = answers[9] || []
-        if (challenges.includes("speaking-fear") && course.category === "Speaking") score += 15
-        if (challenges.includes("vocabulary") && course.id.includes("vocabulary")) score += 15
-        if (challenges.includes("grammar") && course.id.includes("grammar")) score += 15
-        if (challenges.includes("listening") && course.id.includes("listening")) score += 15
-
-        // Calculate match percentage
-        const calculatedMatchScore = Math.min(Math.round((score / 200) * 100), 100)
-
-        return { ...course, matchScore: score, match: calculatedMatchScore, recommended: calculatedMatchScore >= 60 }
-      })
-
-      // Sort by score
-      const sorted = scoredCourses.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0))
-
-      // Split into recommended and others
-      const recommended = sorted.filter((c) => c.recommended).slice(0, 3)
-      const others = sorted.filter((c) => !c.recommended || !recommended.includes(c))
-
-      setRecommendedCourses(recommended.length > 0 ? recommended : sorted.slice(0, 3))
-      setOtherCourses(others)
-    }
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100">
@@ -350,7 +282,7 @@ export default function BuildPlanPageClient({ questions, allCourses }: BuildPlan
                 </Button>
               </Link>
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-bprimary-100 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center">
                   <Target className="w-4 h-4 text-primary-500" />
                 </div>
                 <span className="font-semibold text-slate-900">Study Plan Builder</span>
@@ -427,7 +359,7 @@ export default function BuildPlanPageClient({ questions, allCourses }: BuildPlan
               disabled={currentAnswers.length === 0}
               className="gap-2 cursor-pointer bg-gradient-to-r from-primary-400 to-primary-500 hover:from-primary-500 hover:to-primary-600"
             >
-              {currentQuestion === questions.length - 1 ? "See My Courses" : "Next"}
+              {currentQuestion === questions.length - 1 ? "Set Schedule" : "Next"}
               <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
@@ -436,209 +368,75 @@ export default function BuildPlanPageClient({ questions, allCourses }: BuildPlan
     )
   }
 
-  // Schedule Stage
-  if (stage === "schedule") {
-    const days = [
-      { value: 1, label: "Mon" },
-      { value: 2, label: "Tue" },
-      { value: 3, label: "Wed" },
-      { value: 4, label: "Thu" },
-      { value: 5, label: "Fri" },
-      { value: 6, label: "Sat" },
-      { value: 0, label: "Sun" },
-    ]
+  // Schedule Stage (Default Fallback)
+  const days = [
+    { value: 1, label: "Mon" },
+    { value: 2, label: "Tue" },
+    { value: 3, label: "Wed" },
+    { value: 4, label: "Thu" },
+    { value: 5, label: "Fri" },
+    { value: 6, label: "Sat" },
+    { value: 0, label: "Sun" },
+  ]
 
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 py-12">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Calendar className="w-8 h-8 text-primary-600" />
-            </div>
-            <h1 className="text-3xl font-bold text-slate-900 mb-4">Set Your Schedule</h1>
-            <p className="text-slate-600">Which days do you want to study?</p>
-          </div>
-
-          <Card className="p-8 border-primary-100 shadow-xl bg-white/80 backdrop-blur-sm mb-8">
-            <div className="flex justify-center gap-3 flex-wrap">
-              {days.map((day) => {
-                const isSelected = selectedDays.includes(day.value)
-                return (
-                  <button
-                    key={day.value}
-                    onClick={() => {
-                      setSelectedDays(prev =>
-                        prev.includes(day.value)
-                          ? prev.filter(d => d !== day.value)
-                          : [...prev, day.value]
-                      )
-                    }}
-                    className={`w-14 h-14 rounded-full flex items-center justify-center font-bold transition-all ${isSelected
-                      ? "bg-primary-500 text-white shadow-lg scale-110"
-                      : "bg-slate-100 text-slate-400 hover:bg-slate-200"
-                      }`}
-                  >
-                    {day.label}
-                  </button>
-                )
-              })}
-            </div>
-
-            <div className="mt-8 text-center text-sm text-slate-500">
-              {selectedDays.length === 0 ? "Select at least one day" : `You will study ${selectedDays.length} days a week`}
-            </div>
-          </Card>
-
-          <div className="flex gap-4">
-            <Button
-              variant="outline"
-              size="lg"
-              className="flex-1"
-              onClick={() => setStage("results")}
-            >
-              Back
-            </Button>
-            <Button
-              size="lg"
-              className="flex-1 bg-primary-500 hover:bg-primary-600 text-white"
-              onClick={handleBuildPlan}
-              disabled={isLoading || selectedDays.length === 0}
-            >
-              {isLoading ? "Building Plan..." : "Build My Plan"}
-              {!isLoading && <Sparkles className="ml-2 w-5 h-5" />}
-            </Button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Results Stage
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-primary-100 text-primary-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-            <Sparkles className="w-4 h-4" />
-            Plan Generated Successfully
+          <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Calendar className="w-8 h-8 text-primary-600" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-900">
-            Your Personalized Study Plan is Ready!
-          </h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Based on your answers, we've selected the best courses to help you achieve your goals.
-          </p>
+          <h1 className="text-3xl font-bold text-slate-900 mb-4">Set Your Schedule</h1>
+          <p className="text-slate-600">Which days do you want to study?</p>
         </div>
 
-        {/* Recommended Courses */}
-        <div className="mb-12">
-          <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-            <Star className="w-5 h-5 text-primary-500" />
-            Recommended for You
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {recommendedCourses.map((course) => {
-              const isSelected = selectedCourses.includes(course.id)
+        <Card className="p-8 border-primary-100 shadow-xl bg-white/80 backdrop-blur-sm mb-8">
+          <div className="flex justify-center gap-3 flex-wrap">
+            {days.map((day) => {
+              const isSelected = selectedDays.includes(day.value)
               return (
-                <Card
-                  key={course.id}
-                  className={`overflow-hidden border-2 transition-all hover:shadow-lg cursor-pointer ${isSelected ? "border-primary-500 ring-2 ring-primary-200" : "border-primary-200"
+                <button
+                  key={day.value}
+                  onClick={() => {
+                    setSelectedDays(prev =>
+                      prev.includes(day.value)
+                        ? prev.filter(d => d !== day.value)
+                        : [...prev, day.value]
+                    )
+                  }}
+                  className={`w-14 h-14 rounded-full flex items-center justify-center font-bold transition-all ${isSelected
+                    ? "bg-primary-500 text-white shadow-lg scale-110"
+                    : "bg-slate-100 text-slate-400 hover:bg-slate-200"
                     }`}
-                  onClick={() => toggleCourse(course.id)}
                 >
-                  <div className="relative h-40">
-                    <Image src={course.image || "/placeholder.svg"} alt={course.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw" className="object-cover" />
-                    <div className="absolute top-3 right-3 bg-primary-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                      {course.matchScore}% Match
-                    </div>
-                    {isSelected && (
-                      <div className="absolute inset-0 bg-primary-900/40 flex items-center justify-center">
-                        <div className="bg-white rounded-full p-2">
-                          <Check className="w-6 h-6 text-primary-600" />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-bold text-slate-900 mb-2">{course.title}</h3>
-                    <p className="text-sm text-slate-500 mb-3 line-clamp-2">{course.description}</p>
-                    <div className="flex items-center gap-2 text-xs text-slate-500 mb-4">
-                      <Clock className="w-3 h-3" />
-                      {course.duration}
-                      <span className="mx-1">•</span>
-                      {course.level}
-                    </div>
-                    <Button variant={isSelected ? "default" : "outline"} size="sm" className="w-full text-xs">
-                      {isSelected ? "Selected" : "Select Course"}
-                    </Button>
-                  </div>
-                </Card>
+                  {day.label}
+                </button>
               )
             })}
           </div>
-        </div>
 
-        {/* Other Courses */}
-        <div className="mb-12">
-          <h2 className="text-xl font-bold text-slate-900 mb-6">Other Courses You Might Like</h2>
-          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {otherCourses.map((course) => {
-              const isSelected = selectedCourses.includes(course.id)
-              return (
-                <Card
-                  key={course.id}
-                  className={`p-4 hover:shadow-md transition-all border cursor-pointer ${isSelected ? "border-primary-500 bg-primary-50" : "border-slate-200"
-                    }`}
-                  onClick={() => toggleCourse(course.id)}
-                >
-                  <div className="flex gap-3">
-                    <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                      <Image src={course.image || "/placeholder.svg"} alt={course.title} fill sizes="64px" className="object-cover" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-sm text-slate-900 mb-1 truncate">
-                        {course.title}
-                      </h3>
-                      <p className="text-xs text-slate-500 mb-2">{course.duration}</p>
-                      <div className="flex justify-end">
-                        {isSelected ? (
-                          <Check className="w-5 h-5 text-primary-600" />
-                        ) : (
-                          <Button variant="ghost" size="sm" className="h-6 text-xs px-2 text-primary-600 bg-primary-100">
-                            Add
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              )
-            })}
+          <div className="mt-8 text-center text-sm text-slate-500">
+            {selectedDays.length === 0 ? "Select at least one day" : `You will study ${selectedDays.length} days a week`}
           </div>
-        </div>
+        </Card>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pb-20">
-          <Button
-            size="lg"
-            className="bg-primary-500 hover:bg-primary-600 text-white px-8"
-            onClick={() => setStage("schedule")}
-            disabled={selectedCourses.length === 0}
-          >
-            Continue to Schedule
-            <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
+        <div className="flex gap-4">
           <Button
             variant="outline"
             size="lg"
-            onClick={() => {
-              setStage("intro")
-              setCurrentQuestion(0)
-              setAnswers({})
-            }}
+            className="flex-1"
+            onClick={() => setStage("questions")}
           >
-            Start Over
+            Back
+          </Button>
+          <Button
+            size="lg"
+            className="flex-1 bg-primary-500 hover:bg-primary-600 text-white"
+            onClick={handleBuildPlan}
+            disabled={isLoading || selectedDays.length === 0}
+          >
+            {isLoading ? "Building Plan..." : "Build My Plan"}
+            {!isLoading && <Sparkles className="ml-2 w-5 h-5" />}
           </Button>
         </div>
       </div>

@@ -22,7 +22,7 @@ interface HubHeroProps {
   }
   notification?: {
     text: string
-    actionLabel: string
+    actionLabel?: string
     onClick?: () => void
   }
   decorativeWords?: string[]
@@ -48,23 +48,37 @@ export function HubHero({
         
         <div className="mb-4 flex flex-wrap gap-3">
           {primaryAction && (
-            <Button variant="default" className="gap-2 cursor-pointer">
-              {primaryAction.label}
-            </Button>
+            primaryAction.href ? (
+              <Button asChild variant="default" className="gap-2 cursor-pointer">
+                <a href={primaryAction.href}>{primaryAction.label}</a>
+              </Button>
+            ) : (
+              <Button variant="default" className="gap-2 cursor-pointer" onClick={primaryAction.onClick}>
+                {primaryAction.label}
+              </Button>
+            )
           )}
           {secondaryAction && (
-            <Button variant="outline" className="gap-2 bg-transparent cursor-pointer">
-              {secondaryAction.label}
-            </Button>
+            secondaryAction.href ? (
+              <Button asChild variant="outline" className="gap-2 bg-transparent cursor-pointer">
+                <a href={secondaryAction.href}>{secondaryAction.label}</a>
+              </Button>
+            ) : (
+              <Button variant="outline" className="gap-2 bg-transparent cursor-pointer" onClick={secondaryAction.onClick}>
+                {secondaryAction.label}
+              </Button>
+            )
           )}
         </div>
 
         {notification && (
           <div className="flex items-center gap-2">
             <span className="text-sm">{notification.text}</span>
-            <Button variant="outline" size="sm" className="cursor-pointer bg-transparent">
-              {notification.actionLabel}
-            </Button>
+            {notification.actionLabel && (
+              <Button variant="outline" size="sm" className="cursor-pointer bg-transparent">
+                {notification.actionLabel}
+              </Button>
+            )}
           </div>
         )}
       </div>

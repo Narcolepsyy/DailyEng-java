@@ -131,7 +131,7 @@ function buildReminders(tasks: TodayLesson[]): Reminder[] {
       title: "Speaking Room",
       description: "You haven't practiced speaking today",
       action: "Practice Now",
-      href: "/speaking",
+      href: "/speaking-room",
     });
   }
 
@@ -153,12 +153,12 @@ function buildReminders(tasks: TodayLesson[]): Reminder[] {
 
 function getFallbackData() {
   const todayLessons: TodayLesson[] = [
-    { id: "task-1", type: "vocab", title: "Business Vocabulary", topic: "Professional English", duration: "09:00 - 09:30", completed: false, link: "/vocab/business", startTime: "09:00", endTime: "09:30" },
-    { id: "task-2", type: "grammar", title: "Past Perfect Tense", topic: "Grammar Fundamentals", duration: "10:00 - 10:30", completed: false, link: "/grammar/past-perfect", startTime: "10:00", endTime: "10:30" },
-    { id: "task-3", type: "speaking", title: "Job Interview Practice", topic: "Speaking Skills", duration: "14:00 - 14:30", completed: false, link: "/speaking/session/scenario-2", startTime: "14:00", endTime: "14:30" },
+    { id: "task-1", type: "vocab", title: "Business Vocabulary", topic: "Professional English", duration: "09:00 - 09:30", completed: false, link: "/vocabulary-hub/business", startTime: "09:00", endTime: "09:30" },
+    { id: "task-2", type: "grammar", title: "Past Perfect Tense", topic: "Grammar Fundamentals", duration: "10:00 - 10:30", completed: false, link: "/grammar-hub/past-perfect", startTime: "10:00", endTime: "10:30" },
+    { id: "task-3", type: "speaking", title: "Job Interview Practice", topic: "Speaking Skills", duration: "14:00 - 14:30", completed: false, link: "/speaking-room/session/scenario-2", startTime: "14:00", endTime: "14:30" },
   ];
   const reminders: Reminder[] = [
-    { id: "r1", type: "speaking", title: "Speaking Room", description: "You haven't practiced speaking today", action: "Practice Now", href: "/speaking" },
+    { id: "r1", type: "speaking", title: "Speaking Room", description: "You haven't practiced speaking today", action: "Practice Now", href: "/speaking-room" },
     { id: "r2", type: "notebook", title: "Notebook", description: "You have 15 words to review", action: "Review Now", href: "/notebook" },
   ];
   const studyGoals: StudyGoals = { currentLevel: "B1", targetLevel: "B2", hoursPerWeek: 10, durationMonths: 6 };

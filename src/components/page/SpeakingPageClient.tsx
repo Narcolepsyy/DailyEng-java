@@ -72,25 +72,22 @@ export default function SpeakingPageClient({
             title={t("speaking_hub.title")}
             description={t("speaking_hub.description")}
             imageSrc="/hero-speaking.jpg"
-            primaryAction={{ label: t("speaking_hub.build_study_plan") }}
-            secondaryAction={{
-              label: t("speaking_hub.random_topic"),
-              onClick: customTopics.handleSurpriseMe,
-            }}
+            primaryAction={{ label: "Choose Learning Topic", href: "#topics" }}
             notification={{
-              text: t("speaking_hub.practice_streak"),
-              actionLabel: t("speaking_hub.continue"),
+              text: "Overview: 7 Topic Groups • 168 Speaking Topics",
             }}
             decorativeWords={["speaking", "fluency", "practice"]}
           />
 
-          <SpeakingTabBar
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            searchQuery={search.searchQuery}
-            onSearchChange={search.setSearchQuery}
-            isSearchMode={search.isSearchMode}
-          />
+          <div id="topics" className="scroll-mt-24 w-full">
+            <SpeakingTabBar
+              activeTab={activeTab}
+              onTabChange={setActiveTab}
+              searchQuery={search.searchQuery}
+              onSearchChange={search.setSearchQuery}
+              isSearchMode={search.isSearchMode}
+            />
+          </div>
 
           <TabContent
             activeTab={activeTab}
@@ -219,7 +216,7 @@ function TabContent({
           onRatingFilterChange={history.setHistoryRatingFilter}
           onSessionClick={(scenarioId, sessionId) =>
             router.push(
-              `/speaking/session/${scenarioId}?session=${sessionId}&from=history`
+              `/speaking-room/session/${scenarioId}?session=${sessionId}&from=history`
             )
           }
           onDeleteSession={history.handleDeleteSession}

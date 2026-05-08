@@ -119,13 +119,53 @@ export default function SpeakingSessionClient(
 
     case "complete":
       return (
-        <CompletionView
-          assessmentData={session.assessmentData}
+        <ActiveSessionView
+          scenario={scenario}
+          turns={session.turns}
+          isRecording={session.recording.isRecording}
+          isTranscribing={session.recording.isTranscribing}
+          isProcessing={session.isProcessing}
+          mediaStream={session.recording.mediaStream}
+          hintText={session.hintText}
+          hintTranslation={session.hintTranslation}
+          isLoadingHint={session.isLoadingHint}
           sessionMode={session.sessionMode}
-          language={learningLanguage}
+          showQuitDialog={session.showQuitDialog}
+          showFinishDialog={session.showFinishDialog}
           backUrl={session.backUrl}
+          conversationRef={session.conversationRef}
+          onToggleRecording={session.recording.handleToggleRecording}
+          onRequestHint={session.requestHint}
+          onDismissHint={() => { session.setHintText(null); session.setHintTranslation(null); }}
+          onSpeakText={session.tts.speakText}
+          onSpeakHint={async () => {
+            if (session.tts.isSpeakingRef.current) {
+              session.tts.stopPlayback();
+              return;
+            }
+            if (session.hintText) {
+              await session.tts.speakText(session.hintText);
+            }
+          }}
+          onSetShowQuitDialog={session.setShowQuitDialog}
+          onSetShowFinishDialog={session.setShowFinishDialog}
+          onContinue={() => session.setShowQuitDialog(false)}
+          onFinish={async () => {
+            session.setShowQuitDialog(false);
+            session.setShowFinishDialog(false);
+            session.tts.stopPlayback();
+            await session.finishAndAnalyze();
+          }}
+          onStopMicrophone={() => {
+            session.tts.stopPlayback();
+            session.recording.stopMicrophone();
+          }}
+          currentTurnNumber={session.currentTurnNumber}
+          maxTurns={session.maxTurns}
+          t={session.t}
+          assessmentData={session.assessmentData}
           onRetry={session.resetSession}
-          router={session.router}
+          language={learningLanguage}
         />
       );
 

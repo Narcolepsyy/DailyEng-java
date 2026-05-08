@@ -100,7 +100,7 @@ export function CustomTopicsTab({
                 wordCount={7}
                 thumbnail={topic.image}
                 progress={topic.progress}
-                href={`/speaking/session/${topic.id}`}
+                href={`/speaking-room/session/${topic.id}`}
                 onNotYet={() => {}}
                 type="speaking"
                 subcategory={topic.subcategory}

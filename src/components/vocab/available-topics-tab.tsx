@@ -99,7 +99,7 @@ export function AvailableTopicsTab({
                   level={topic.level}
                   wordCount={topic.wordCount}
                   progress={topic.progress}
-                  href={`/vocab/${topic.id}`}
+                  href={`/vocabulary-hub/${topic.id}`}
                   onNotYet={() => {}}
                   type="vocabulary"
                   isBookmarked={bookmarkedTopics.includes(topic.id)}

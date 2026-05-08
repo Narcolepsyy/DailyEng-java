@@ -28,6 +28,7 @@ export interface Turn {
   wordAssessments?: WordAssessment[];
   pronunciationScores?: PronunciationScores;
   correctionHint?: string;
+  relevanceHint?: string;
   scores?: {
     accuracy?: number;
     fluency?: number;

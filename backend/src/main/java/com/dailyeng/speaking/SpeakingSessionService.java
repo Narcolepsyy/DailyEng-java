@@ -153,7 +153,7 @@ public class SpeakingSessionService {
                 turnRepo.save(aiTurn);
 
                 return new SubmitTurnResponse(aiResult.response(), userTurn.getId(), aiTurn.getId(),
-                                sessionComplete, aiResult.correctionHint());
+                                sessionComplete, aiResult.correctionHint(), aiResult.relevanceHint());
         }
 
         // ========================================================================

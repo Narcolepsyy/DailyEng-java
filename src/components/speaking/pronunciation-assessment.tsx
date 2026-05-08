@@ -175,12 +175,14 @@ export default function PronunciationAssessmentReview({
   language = "en",
   onBack,
   onRetry,
+  isEmbedded = false,
 }: {
   data: AssessmentData;
   mode?: "scripted" | "unscripted";
   language?: string;
   onBack: () => void;
   onRetry: () => void;
+  isEmbedded?: boolean;
 }) {
   const isJapanese = language === "ja";
   const [enabledErrors, setEnabledErrors] = useState<Record<string, boolean>>(
@@ -207,36 +209,36 @@ export default function PronunciationAssessmentReview({
   const toggleError = useCallback((key: string) => {
     setEnabledErrors((prev) => ({ ...prev, [key]: !prev[key] }));
   }, []);
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50/80 px-4 sm:px-6 lg:px-8 pt-6 pb-12">
-      <div className="max-w-7xl mx-auto space-y-7">
-
-        {/* ═══════════ Header ═══════════ */}
-        <div className="flex items-end justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
-              Assessment Result
-            </h1>
-            <p className="text-sm text-slate-400 mt-0.5">
-              {isJapanese
-                ? "各文字をクリックして音節を表示 · ターンをクリックで詳細表示"
-                : "Click any word to view IPA phonemes · Click a turn to expand details"}
-            </p>
+    <div className={isEmbedded ? "" : "min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50/80 px-4 sm:px-6 lg:px-8 pt-6 pb-12"}>
+      <div className={isEmbedded ? "space-y-7" : "max-w-7xl mx-auto space-y-7"}>
+        {!isEmbedded && (
+          /* ═══════════ Header ═══════════ */
+          <div className="flex items-end justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+                Assessment Result
+              </h1>
+              <p className="text-sm text-slate-400 mt-0.5">
+                {isJapanese
+                  ? "各文字をクリックして音節を表示 · ターンをクリックで詳細表示"
+                  : "Click any word to view IPA phonemes · Click a turn to expand details"}
+              </p>
+            </div>
+            <div className="flex items-center gap-3 mb-1">
+              {[
+                { label: "0–59", color: "bg-red-500" },
+                { label: "60–79", color: "bg-amber-500" },
+                { label: "80–100", color: "bg-emerald-500" },
+              ].map((l) => (
+                <div key={l.label} className="flex items-center gap-1.5">
+                  <span className={`w-2.5 h-2.5 rounded-sm ${l.color}`} />
+                  <span className="text-xs text-slate-400 tabular-nums">{l.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="flex items-center gap-3 mb-1">
-            {[
-              { label: "0–59", color: "bg-red-500" },
-              { label: "60–79", color: "bg-amber-500" },
-              { label: "80–100", color: "bg-emerald-500" },
-            ].map((l) => (
-              <div key={l.label} className="flex items-center gap-1.5">
-                <span className={`w-2.5 h-2.5 rounded-sm ${l.color}`} />
-                <span className="text-xs text-slate-400 tabular-nums">{l.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        )}
 
         {/* ═══════════ Assessment Panel ═══════════ */}
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm">
@@ -537,24 +539,26 @@ export default function PronunciationAssessmentReview({
         </div>
 
         {/* ═══════════ Actions ═══════════ */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onBack}
-            className="h-12 px-6 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold text-sm
-              hover:border-slate-300 hover:text-slate-800 active:scale-[0.98] transition-all duration-150 cursor-pointer
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
-          >
-            Back
-          </button>
-          <button
-            onClick={onRetry}
-            className="h-12 px-6 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold text-sm
-              hover:border-slate-300 hover:text-slate-800 active:scale-[0.98] transition-all duration-150 cursor-pointer
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
-          >
-            Try Again
-          </button>
-        </div>
+        {!isEmbedded && (
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onBack}
+              className="h-12 px-6 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold text-sm
+                hover:border-slate-300 hover:text-slate-800 active:scale-[0.98] transition-all duration-150 cursor-pointer
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
+            >
+              Back
+            </button>
+            <button
+              onClick={onRetry}
+              className="h-12 px-6 rounded-xl border border-slate-200 bg-white text-slate-600 font-semibold text-sm
+                hover:border-slate-300 hover:text-slate-800 active:scale-[0.98] transition-all duration-150 cursor-pointer
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
 
       </div>
     </div>

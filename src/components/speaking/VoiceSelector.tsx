@@ -264,9 +264,14 @@ const VoiceSelector = React.memo(function VoiceSelector() {
 
   const options = learningLanguage === "ja" ? JA_VOICE_OPTIONS : VOICE_OPTIONS;
 
+  const [mounted, setMounted] = useState(false);
   const [previewingId, setPreviewingId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const previewText = learningLanguage === "ja" ? PREVIEW_TEXT_JA : PREVIEW_TEXT_EN;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Auto-switch voice when language changes
   useEffect(() => {
@@ -323,6 +328,8 @@ const VoiceSelector = React.memo(function VoiceSelector() {
   const handleSelect = useCallback((voiceId: string) => {
     setTtsVoice(voiceId);
   }, [setTtsVoice]);
+
+  if (!mounted) return null;
 
   return (
     <div style={{ marginTop: 16 }}>

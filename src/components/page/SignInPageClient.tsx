@@ -45,7 +45,7 @@ export default function SignInPageClient({ stats }: SignInPageClientProps) {
 
       if (result.success) {
         // Full page reload to hydrate auth state everywhere
-        window.location.href = "/vocab";
+        window.location.href = "/speaking-room";
       } else {
         setError(result.error || "Đăng nhập thất bại");
       }

@@ -14,7 +14,7 @@ const Footer = dynamic(
   { ssr: true }
 )
 
-const noNavPrefixRoutes = ["/placement-test", "/speaking/session", "/vocab/", "/grammar/", "/build-plan", "/auth", "/why-dailylang", "/how-it-works"]
+const noNavPrefixRoutes = ["/placement-test", "/speaking-room/session", "/vocabulary-hub/", "/grammar-hub/", "/build-plan", "/auth", "/why-dailylang", "/how-it-works"]
 const noNavExactRoutes = ["/"]
 
 export function ConditionalLayout({ children }: { children: React.ReactNode }) {

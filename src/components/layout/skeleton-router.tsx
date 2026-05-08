@@ -6,13 +6,13 @@ import dynamic from "next/dynamic";
 // Each skeleton matches the route's loading.tsx layout exactly.
 // Dynamic imports keep the main bundle light.
 
-const SpeakingSkeleton = dynamic(() => import("@/app/speaking/loading"), {
+const SpeakingSkeleton = dynamic(() => import("@/app/speaking-room/loading"), {
   loading: () => <SkeletonFallback />,
 });
-const VocabSkeleton = dynamic(() => import("@/app/vocab/loading"), {
+const VocabSkeleton = dynamic(() => import("@/app/vocabulary-hub/loading"), {
   loading: () => <SkeletonFallback />,
 });
-const GrammarSkeleton = dynamic(() => import("@/app/grammar/loading"), {
+const GrammarSkeleton = dynamic(() => import("@/app/grammar-hub/loading"), {
   loading: () => <SkeletonFallback />,
 });
 const NotebookSkeleton = dynamic(() => import("@/app/notebook/loading"), {
@@ -31,9 +31,9 @@ interface RouteSkeletonEntry {
 }
 
 const ROUTE_SKELETONS: RouteSkeletonEntry[] = [
-  { prefix: "/speaking", Component: SpeakingSkeleton },
-  { prefix: "/vocab", Component: VocabSkeleton },
-  { prefix: "/grammar", Component: GrammarSkeleton },
+  { prefix: "/speaking-room", Component: SpeakingSkeleton },
+  { prefix: "/vocabulary-hub", Component: VocabSkeleton },
+  { prefix: "/grammar-hub", Component: GrammarSkeleton },
   { prefix: "/notebook", Component: NotebookSkeleton },
   { prefix: "/placement-test", Component: PlacementTestSkeleton },
 ];

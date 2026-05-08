@@ -58,7 +58,7 @@ export default function GrammarTopicPageClient({
           <Button
             variant="ghost"
             className="gap-2 -ml-2 text-slate-500 hover:text-slate-900"
-            onClick={() => router.push('/grammar')}
+            onClick={() => router.push('/grammar-hub')}
           >
             <ChevronLeft className="h-5 w-5" />
             Back to Grammar Hub

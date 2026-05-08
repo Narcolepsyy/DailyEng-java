@@ -77,7 +77,7 @@ public class GeminiService {
     // 1. generateSpeakingResponse — In-conversation AI reply
     // ========================================================================
 
-    public record SpeakingResponseResult(String response, String correctionHint) {}
+    public record SpeakingResponseResult(String response, String correctionHint, String relevanceHint) {}
 
     public record SpeakingHintResult(String hint, String hintTranslation) {}
 
@@ -100,7 +100,7 @@ public class GeminiService {
             int turnsRemaining
     ) {
         if (client == null) {
-            return new SpeakingResponseResult("I'm sorry, I didn't catch that. Could you repeat?", null);
+            return new SpeakingResponseResult("I'm sorry, I didn't catch that. Could you repeat?", null, null);
         }
 
         var botRoleDesc = scenario.botRole() != null
@@ -153,7 +153,12 @@ public class GeminiService {
                 %s
                 
                 IMPORTANT: Be natural and engaging. Do NOT use markdown formatting.
-                CRITICAL: Return ONLY a JSON object: {"response": "<your response>", "correctionHint": "<brief correction or null>"}
+                CRITICAL: Return ONLY a JSON object: {"response": "<your response>", "correctionHint": "<brief correction or null>", "relevanceHint": "<brief comment on how well the response fits the scenario or null>"}
+                
+                RELEVANCE HINT RULES:
+                - relevanceHint should be a brief, helpful comment in Vietnamese IF the user's response is off-topic or doesn't fit the context well.
+                - Example: "Bạn nên tập trung vào việc gọi món thay vì nói về thời tiết."
+                - If the response is perfectly relevant, return null.
                 
                 CORRECTION HINT RULES — BE VERY SELECTIVE:
                 - correctionHint must be null UNLESS there is a CLEAR, UNAMBIGUOUS grammar or vocabulary mistake.
@@ -174,10 +179,12 @@ public class GeminiService {
                 var parsed = objectMapper.readTree(responseText);
                 var responseField = parsed.path("response").asText(null);
                 var correctionHint = parsed.path("correctionHint").asText(null);
+                var relevanceHint = parsed.path("relevanceHint").asText(null);
                 if (responseField != null && !responseField.isBlank()) {
                     var annotated = furiganaService.annotateIfJapanese(responseField, scenario.language());
                     return new SpeakingResponseResult(annotated,
-                            correctionHint != null && !correctionHint.equals("null") ? correctionHint : null);
+                            correctionHint != null && !correctionHint.equals("null") ? correctionHint : null,
+                            relevanceHint != null && !relevanceHint.equals("null") ? relevanceHint : null);
                 }
             } catch (Exception jsonEx) {
                 log.debug("[generateSpeakingResponse] Gemini returned plain text, using as-is");
@@ -191,10 +198,10 @@ public class GeminiService {
             var annotated = furiganaService.annotateIfJapanese(cleaned, scenario.language());
             return new SpeakingResponseResult(annotated.isBlank()
                     ? "I'm sorry, I didn't catch that. Could you repeat?"
-                    : annotated, null);
+                    : annotated, null, null);
         } catch (Exception e) {
             log.error("[generateSpeakingResponse] Error: {}", e.getMessage());
-            return new SpeakingResponseResult("I'm sorry, I didn't catch that. Could you repeat?", null);
+            return new SpeakingResponseResult("I'm sorry, I didn't catch that. Could you repeat?", null, null);
         }
     }
 
@@ -881,15 +888,21 @@ public class GeminiService {
     // ========================================================================
 
     private SpeakingResponseResult generateSpeakingResponseFallback(
-            String conversationHistory, String userMessage, ScenarioConfig scenario, Throwable t) {
+            ScenarioConfig scenario,
+            List<Map<String, String>> history,
+            String userMessage,
+            int turnsRemaining,
+            Throwable t) {
         log.error("Gemini speaking response circuit breaker activated: {}", t.getMessage());
-        throw new ExternalServiceException("AI conversation service temporarily unavailable", t);
+        return new SpeakingResponseResult("I'm sorry, I didn't catch that. Could you repeat?", null, null);
     }
 
     private SpeakingHintResult generateSpeakingHintFallback(
-            String conversationHistory, ScenarioConfig scenario, Throwable t) {
+            ScenarioConfig scenario,
+            List<Map<String, String>> history,
+            Throwable t) {
         log.error("Gemini speaking hint circuit breaker activated: {}", t.getMessage());
-        throw new ExternalServiceException("AI hint service temporarily unavailable", t);
+        return new SpeakingHintResult("I would like to ask about that, please.", null);
     }
 
     private SessionAnalysisResult analyzeSessionConversationFallback(
@@ -904,8 +917,11 @@ public class GeminiService {
     }
 
     private String generateDoraraResponseFallback(
-            String systemPrompt, String conversationHistory, String userMessage, String learnerData, Throwable t) {
+            String systemInstruction,
+            List<Map<String, String>> history,
+            String userMessage,
+            Throwable t) {
         log.error("Gemini Dorara response circuit breaker activated: {}", t.getMessage());
-        throw new ExternalServiceException("AI assistant service temporarily unavailable", t);
+        return "{\"response\":\"Xin lỗi, tôi gặp chút trục trặc. Bạn có thể hỏi lại được không?\",\"suggestedActions\":[],\"vocabHighlights\":[],\"quizQuestion\":null}";
     }
 }

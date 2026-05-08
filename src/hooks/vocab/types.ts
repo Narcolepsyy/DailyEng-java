@@ -22,7 +22,7 @@ export interface DictionaryWord {
   level: string;
 }
 
-export type TabType = "topics" | "bookmarks" | "mindmap" | "dictionary";
+export type TabType = "topics" | "bookmarks" | "dictionary";
 
 // ─── Constants ─────────────────────────────────────
 
@@ -32,7 +32,6 @@ export const DICT_ITEMS_PER_PAGE = 50;
 export const VOCAB_TABS = [
   { id: "topics", label: "Available Topics" },
   { id: "bookmarks", label: "Bookmarks" },
-  { id: "mindmap", label: "Knowledge Graph" },
   { id: "dictionary", label: "Dictionary" },
 ] as const;
 

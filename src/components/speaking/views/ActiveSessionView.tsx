@@ -14,7 +14,8 @@ import {
   X,
   Pencil,
 } from "lucide-react";
-import type { Turn } from "@/hooks/speaking-session/types";
+import type { Turn, AnalysisResult } from "@/hooks/speaking-session/types";
+import PronunciationAssessmentReview, { type AssessmentData } from "@/components/speaking/pronunciation-assessment";
 
 const VoiceWaveform = dynamic(() => import("@/components/speaking/VoiceWaveform"), { ssr: false });
 
@@ -76,7 +77,11 @@ export default function ActiveSessionView({
   currentTurnNumber,
   maxTurns,
   t,
+  assessmentData,
+  onRetry,
+  language,
 }: ActiveSessionViewProps) {
+  const isComplete = !!assessmentData;
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 h-screen max-h-screen flex flex-col">
       {/* Options Dialog */}
@@ -107,6 +112,7 @@ export default function ActiveSessionView({
         maxTurns={maxTurns}
         onMenuClick={() => onSetShowQuitDialog(true)}
         onFinishClick={() => onSetShowFinishDialog(true)}
+        isComplete={isComplete}
       />
 
       {/* Main Content */}
@@ -118,22 +124,30 @@ export default function ActiveSessionView({
             conversationRef={conversationRef}
             onSpeakText={onSpeakText}
             t={t}
+            isComplete={isComplete}
+            assessmentData={assessmentData}
+            sessionMode={sessionMode}
+            language={language}
+            onRetry={onRetry}
+            backUrl={backUrl}
           />
 
-          <InputBar
-            hintText={hintText}
-            hintTranslation={hintTranslation}
-            isLoadingHint={isLoadingHint}
-            isRecording={isRecording}
-            isTranscribing={isTranscribing}
-            mediaStream={mediaStream}
-            sessionMode={sessionMode}
-            onToggleRecording={onToggleRecording}
-            onRequestHint={onRequestHint}
-            onDismissHint={onDismissHint}
-            onSpeakHint={onSpeakHint}
-            t={t}
-          />
+          {!isComplete && (
+            <InputBar
+              hintText={hintText}
+              hintTranslation={hintTranslation}
+              isLoadingHint={isLoadingHint}
+              isRecording={isRecording}
+              isTranscribing={isTranscribing}
+              mediaStream={mediaStream}
+              sessionMode={sessionMode}
+              onToggleRecording={onToggleRecording}
+              onRequestHint={onRequestHint}
+              onDismissHint={onDismissHint}
+              onSpeakHint={onSpeakHint}
+              t={t}
+            />
+          )}
         </div>
       </div>
     </div>
@@ -231,6 +245,7 @@ function SessionHeader({
   maxTurns,
   onMenuClick,
   onFinishClick,
+  isComplete,
 }: {
   title: string;
   showQuitDialog: boolean;
@@ -238,31 +253,36 @@ function SessionHeader({
   maxTurns: number;
   onMenuClick: () => void;
   onFinishClick: () => void;
+  isComplete?: boolean;
 }) {
   return (
     <div className="mb-4 flex items-center justify-center z-10 shrink-0 relative max-w-4xl mx-auto w-full">
-      <button
-        onClick={onMenuClick}
-        aria-label="Session menu"
-        className={`absolute left-0 w-10 h-10 rounded-full bg-[#e0e7ff] flex items-center justify-center hover:bg-[#c7d2fe] transition-all duration-300 ${
-          showQuitDialog ? "rotate-90" : "rotate-0"
-        }`}
-      >
-        <Menu className="h-5 w-5 text-[#4b3fd4]" />
-      </button>
+      {!isComplete && (
+        <button
+          onClick={onMenuClick}
+          aria-label="Session menu"
+          className={`absolute left-0 w-10 h-10 rounded-full bg-[#e0e7ff] flex items-center justify-center hover:bg-[#c7d2fe] transition-all duration-300 ${
+            showQuitDialog ? "rotate-90" : "rotate-0"
+          }`}
+        >
+          <Menu className="h-5 w-5 text-[#4b3fd4]" />
+        </button>
+      )}
       <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-bold text-center">{title}</h1>
+        <h1 className="text-2xl font-bold text-center">{isComplete ? "Session Results" : title}</h1>
         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold tracking-wide">
-          {currentTurnNumber}/{maxTurns}
+          {isComplete ? "Completed" : `${currentTurnNumber}/${maxTurns}`}
         </span>
       </div>
-      <button
-        onClick={onFinishClick}
-        aria-label="Finish conversation"
-        className="absolute right-0 w-10 h-10 rounded-full bg-[#e0e7ff] flex items-center justify-center hover:bg-[#c7d2fe] transition-all duration-300"
-      >
-        <FastForward className="h-5 w-5 text-[#4b3fd4]" />
-      </button>
+      {!isComplete && (
+        <button
+          onClick={onFinishClick}
+          aria-label="Finish conversation"
+          className="absolute right-0 w-10 h-10 rounded-full bg-[#e0e7ff] flex items-center justify-center hover:bg-[#c7d2fe] transition-all duration-300"
+        >
+          <FastForward className="h-5 w-5 text-[#4b3fd4]" />
+        </button>
+      )}
     </div>
   );
 }
@@ -273,12 +293,23 @@ function ChatMessages({
   conversationRef,
   onSpeakText,
   t,
+  isComplete,
+  assessmentData,
+  sessionMode,
+  language,
+  onRetry,
 }: {
   turns: Turn[];
   isProcessing: boolean;
   conversationRef: React.Ref<HTMLDivElement>;
   onSpeakText: (text: string) => void;
   t: (key: string) => string;
+  isComplete?: boolean;
+  assessmentData?: AssessmentData | null;
+  sessionMode?: "scripted" | "unscripted";
+  language?: string;
+  onRetry?: () => void;
+  backUrl?: string;
 }) {
   return (
     <div
@@ -293,6 +324,35 @@ function ChatMessages({
         />
       ))}
       {isProcessing && <TypingIndicator t={t} />}
+
+      {isComplete && assessmentData && (
+        <div className="mt-8 pt-8 border-t border-border/40 space-y-10">
+          <PronunciationAssessmentReview
+            data={assessmentData}
+            mode={sessionMode}
+            language={language}
+            onBack={() => {}} // Not used in this context
+            onRetry={onRetry}
+            isEmbedded={true}
+          />
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pb-12">
+            {backUrl && (
+              <Link href={backUrl} className="w-full sm:w-auto">
+                <Button variant="outline" className="w-full sm:w-48 h-12 rounded-2xl border-2 border-indigo-100 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 font-bold transition-all duration-300">
+                  Quay về chủ đề
+                </Button>
+              </Link>
+            )}
+            <Button 
+              onClick={onRetry}
+              className="w-full sm:w-48 h-12 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold shadow-lg shadow-indigo-200 transition-all duration-300 transform hover:scale-105 active:scale-95"
+            >
+              Thử lại
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -343,6 +403,14 @@ function MessageBubble({
             <div className="mt-1.5 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200/60 w-fit motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-1 motion-safe:duration-300">
               <Pencil className="h-3 w-3 text-amber-500 shrink-0" />
               <span className="text-xs text-amber-700 font-medium">{turn.correctionHint}</span>
+            </div>
+          )}
+
+          {/* Relevance hint nudge */}
+          {isUser && turn.relevanceHint && (
+            <div className="mt-1.5 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200/60 w-fit motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-1 motion-safe:duration-300">
+              <Lightbulb className="h-3 w-3 text-amber-500 shrink-0" />
+              <span className="text-xs text-amber-700 font-medium">{turn.relevanceHint}</span>
             </div>
           )}
         </div>

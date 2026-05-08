@@ -62,7 +62,7 @@ export default function VocabTopicPageClient({
           <Button
             variant="ghost"
             className="gap-2 -ml-2 text-slate-500 hover:text-slate-900"
-            onClick={() => router.push('/vocab')}
+            onClick={() => router.push('/vocabulary-hub')}
           >
             <ChevronLeft className="h-5 w-5" />
             Back to Vocabulary Hub

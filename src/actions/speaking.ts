@@ -64,6 +64,7 @@ export interface SubmitTurnResponse {
   aiTurnId: string;
   sessionComplete: boolean;
   correctionHint?: string;
+  relevanceHint?: string;
 }
 
 export interface CustomScenarioResponse {

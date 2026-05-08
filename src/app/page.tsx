@@ -63,6 +63,14 @@ const featureTabs: FeatureTab[] = [
     image: "/speakingroom.jpg",
   },
   {
+    id: "smart-lens",
+    label: "Smart Lens & Translate",
+    title: "Smart Lens & AI Translate",
+    description:
+      "Break language barriers instantly. Use your camera to scan and translate signs, menus, or documents in real-time. Or use our advanced AI text translator for deep contextual understanding.",
+    image: "/smart-lens-feature.png",
+  },
+  {
     id: "study-plan",
     label: "Personal Study Plan",
     title: "Personal Study Plan",
@@ -97,7 +105,7 @@ export default async function HomePage() {
   // Server-side auth check: redirect authenticated users to the app dashboard
   const session = await auth();
   if (session?.user) {
-    redirect("/vocab");
+    redirect("/speaking-room");
   }
 
   const reviews = await fetchReviews();

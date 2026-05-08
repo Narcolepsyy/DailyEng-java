@@ -16,7 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * REST controller for Azure Speech operations (STT, TTS, pronunciation assessment).
+ * REST controller for Azure Speech operations (STT, TTS, pronunciation
+ * assessment).
  * Extracted from SpeakingController for Single Responsibility.
  */
 @Slf4j
@@ -32,8 +33,7 @@ public class SpeechController extends BaseController {
     @PostMapping("/transcribe")
     public ResponseEntity<AzureSpeechService.TranscriptionResult> transcribeAudio(
             @RequestParam("audio") MultipartFile audioFile,
-            @RequestParam(value = "targetLanguage", required = false) String targetLanguage
-    ) {
+            @RequestParam(value = "targetLanguage", required = false) String targetLanguage) {
         requireUserId();
         // 🛡️ Sentinel: Prevent Memory Exhaustion / DoS from massive language codes
         if (targetLanguage != null && targetLanguage.length() > 50) {
@@ -59,15 +59,15 @@ public class SpeechController extends BaseController {
     }
 
     /**
-     * POST /speaking/speech/transcribe-assess — Transcribe + Pronunciation Assessment.
+     * POST /speaking/speech/transcribe-assess — Transcribe + Pronunciation
+     * Assessment.
      * Scripted (with referenceText) or unscripted (without).
      */
     @PostMapping("/transcribe-assess")
     public ResponseEntity<TranscribeAssessResponse> transcribeAndAssess(
             @RequestParam("audio") MultipartFile audioFile,
             @RequestParam(value = "referenceText", required = false) String referenceText,
-            @RequestParam(value = "targetLanguage", required = false) String targetLanguage
-    ) {
+            @RequestParam(value = "targetLanguage", required = false) String targetLanguage) {
         requireUserId();
         // 🛡️ Sentinel: Prevent Cost Exhaustion / DoS
         if (referenceText != null && referenceText.length() > 5000) {
@@ -155,8 +155,7 @@ public class SpeechController extends BaseController {
     public ResponseEntity<AzureSpeechService.PronunciationResult> assessPronunciation(
             @RequestParam("audio") MultipartFile audioFile,
             @RequestParam(value = "referenceText", required = false) String referenceText,
-            @RequestParam(value = "targetLanguage", required = false) String targetLanguage
-    ) {
+            @RequestParam(value = "targetLanguage", required = false) String targetLanguage) {
         requireUserId();
         // 🛡️ Sentinel: Prevent Cost Exhaustion / DoS
         if (referenceText != null && referenceText.length() > 5000) {
@@ -189,7 +188,8 @@ public class SpeechController extends BaseController {
 
     /** Maps ISO language codes (en, ja) to Azure locale codes (en-US, ja-JP). */
     private String resolveAzureLocale(String langCode) {
-        if (langCode == null || langCode.isBlank()) return null;
+        if (langCode == null || langCode.isBlank())
+            return null;
         return switch (langCode.toLowerCase()) {
             case "ja" -> "ja-JP";
             case "en" -> "en-US";

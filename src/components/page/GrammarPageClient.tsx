@@ -237,17 +237,11 @@ export default function GrammarPageClient({
           title="GRAMMAR HUB"
           description="Master English grammar with structured lessons."
           imageSrc="/hero-grammar.jpg"
-          primaryAction={{ label: "Build Study Plan" }}
-          secondaryAction={{ label: "Choose Learning Topic" }}
-          notification={{
-            text: "Today's lessons: 5 lessons",
-            actionLabel: "Review now",
-          }}
           decorativeWords={["grammar", "structure", "syntax"]}
         />
       )}
 
-      <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 border-b border-gray-200 pb-0">
+      <div id="topics" className="flex flex-col sm:flex-row gap-4 sm:gap-8 border-b border-gray-200 pb-0 scroll-mt-24">
         {!isSearchMode && (
           <div className="flex gap-8 overflow-x-auto pb-px">
             {tabs.map((tab) => (
@@ -313,7 +307,7 @@ export default function GrammarPageClient({
                       wordCount={topic.lessonCount}
                       thumbnail={topic.thumbnail}
                       progress={topic.progress}
-                      href={`/grammar/${topic.id}`}
+                      href={`/grammar-hub/${topic.id}`}
                       onNotYet={() => {}}
                       type="grammar"
                       isBookmarked={bookmarkedTopics.includes(topic.id)}
@@ -380,7 +374,7 @@ export default function GrammarPageClient({
                         wordCount={topic.lessonCount}
                         thumbnail={topic.thumbnail}
                         progress={topic.progress}
-                        href={`/grammar/${topic.id}`}
+                        href={`/grammar-hub/${topic.id}`}
                         onNotYet={() => {}}
                         type="grammar"
                         isBookmarked={bookmarkedTopics.includes(topic.id)}
@@ -427,7 +421,7 @@ export default function GrammarPageClient({
                     wordCount={topic.lessonCount}
                     thumbnail={topic.thumbnail}
                     progress={topic.progress}
-                    href={`/grammar/${topic.id}`}
+                    href={`/grammar-hub/${topic.id}`}
                     onNotYet={() => {}}
                     type="grammar"
                     isBookmarked={true}

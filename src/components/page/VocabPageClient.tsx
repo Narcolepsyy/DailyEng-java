@@ -7,7 +7,6 @@ import { VocabTabBar } from "@/components/vocab/tab-bar";
 import { SearchResults } from "@/components/vocab/search-results";
 import { AvailableTopicsTab } from "@/components/vocab/available-topics-tab";
 import { BookmarksTab } from "@/components/vocab/bookmarks-tab";
-import { KnowledgeGraphTab } from "@/components/vocab/mindmap-tab";
 import { DictionaryTab } from "@/components/vocab/dictionary-tab";
 
 // ─── Props ─────────────────────────────────────────
@@ -39,22 +38,22 @@ export default function VocabPageClient({ userId }: VocabPageClientProps) {
           title="VOCABULARY HUB"
           description="Expand your vocabulary with structured topics and interactive flashcards."
           imageSrc="/hero-vocabulary.jpg"
-          primaryAction={{ label: "View Study Plan" }}
-          secondaryAction={{ label: "Browse Topics" }}
+          primaryAction={{ label: "Choose Learning Topic", href: "#topics" }}
           notification={{
-            text: "Recommended: Daily Routine",
-            actionLabel: "Start",
+            text: "Overview: 7 Topic Groups • 140+ Vocabulary Topics",
           }}
           decorativeWords={["lexicon", "fluency", "expression"]}
         />
 
-        <VocabTabBar
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          searchQuery={search.searchQuery}
-          onSearchChange={search.setSearchQuery}
-          isSearchMode={search.isSearchMode}
-        />
+        <div id="topics" className="scroll-mt-24">
+          <VocabTabBar
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            searchQuery={search.searchQuery}
+            onSearchChange={search.setSearchQuery}
+            isSearchMode={search.isSearchMode}
+          />
+        </div>
 
         <div className="mt-6">
           <TabContent
@@ -129,8 +128,7 @@ function TabContent({
         />
       );
 
-    case "mindmap":
-      return <KnowledgeGraphTab />;
+
 
     case "dictionary":
       return (

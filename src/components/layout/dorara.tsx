@@ -41,21 +41,21 @@ interface QuickAction {
 function getQuickActionsForPage(pathname: string, langStr: string): QuickAction[] {
   const cleanPath = pathname.split("?")[0].replace(/\/$/, "") || "/";
 
-  if (cleanPath === "/speaking" || cleanPath.startsWith("/speaking/")) {
+  if (cleanPath === "/speaking-room" || cleanPath.startsWith("/speaking-room/")) {
     return [
       { icon: Mic, label: "Review my speaking", message: "How were my recent speaking sessions? What should I improve?" },
       { icon: Target, label: "Suggest a scenario", message: "What speaking scenario should I practice next based on my level?" },
       { icon: Lightbulb, label: "Speaking tips", message: `Give me tips to improve my ${langStr} speaking fluency!` },
     ];
   }
-  if (cleanPath === "/vocab" || cleanPath.startsWith("/vocab/")) {
+  if (cleanPath === "/vocabulary-hub" || cleanPath.startsWith("/vocabulary-hub/")) {
     return [
       { icon: BookOpen, label: "Teach me a word", message: `Teach me a useful ${langStr} word that matches my level with examples!` },
       { icon: Brain, label: "Quiz me", message: "Give me a vocabulary quiz question to test my knowledge!" },
       { icon: Zap, label: "Word of the day", message: "What's a great word of the day? Include phonetics and examples." },
     ];
   }
-  if (cleanPath === "/grammar" || cleanPath.startsWith("/grammar/")) {
+  if (cleanPath === "/grammar-hub" || cleanPath.startsWith("/grammar-hub/")) {
     return [
       { icon: GraduationCap, label: "Explain this rule", message: "Explain the grammar rule I'm studying with simple examples!" },
       { icon: Brain, label: "Grammar quiz", message: "Give me a grammar quiz question to practice!" },

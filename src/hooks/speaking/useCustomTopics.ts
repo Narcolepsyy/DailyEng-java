@@ -76,7 +76,7 @@ export function useCustomTopics({
 
     try {
       const result = await action();
-      router.push(`/speaking/session/${result.scenario.id}`);
+      router.push(`/speaking-room/session/${result.scenario.id}`);
     } catch (error) {
       console.error(error);
       toast.error(errorMessage);

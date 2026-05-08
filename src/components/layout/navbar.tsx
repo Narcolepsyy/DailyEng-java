@@ -38,7 +38,7 @@ const NavbarAuthSection = dynamic(
   }
 )
 
-type NavItemKey = "home" | "speaking_room" | "vocabulary_hub" | "grammar_hub" | "study_plan" | "notebook" | "translate" | "smartlens";
+type NavItemKey = "home" | "speaking_room" | "vocabulary_hub" | "grammar_hub" | "study_plan" | "notebook" | "translate";
 
 type NavItem = {
   href: string
@@ -48,13 +48,12 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { href: "/", labelKey: "home" },
-  { href: "/speaking", labelKey: "speaking_room" },
-  { href: "/vocab", labelKey: "vocabulary_hub" },
-  { href: "/grammar", labelKey: "grammar_hub" },
-  { href: "/plan", labelKey: "study_plan" },
+  { href: "/speaking-room", labelKey: "speaking_room" },
+  { href: "/vocabulary-hub", labelKey: "vocabulary_hub" },
+  { href: "/grammar-hub", labelKey: "grammar_hub" },
   { href: "/notebook", labelKey: "notebook" },
   { href: "/translate", labelKey: "translate" },
-  { href: "/smartlens", labelKey: "smartlens" },
+  { href: "/study-plan", labelKey: "study_plan" },
 ]
 
 export function Navbar() {
@@ -71,7 +70,7 @@ export function Navbar() {
   const visibleNavItems = user ? navItems.filter((item) => item.labelKey !== "home") : navItems
 
   const isImmersivePage =
-    pathname?.startsWith("/speaking/session/") ||
+    pathname?.startsWith("/speaking-room/session/") ||
     (pathname?.startsWith("/vocab/") && pathname !== "/vocab") ||
     (pathname?.startsWith("/grammar/") && pathname !== "/grammar")
 
@@ -83,7 +82,7 @@ export function Navbar() {
       aria-label="Main navigation"
     >
       {/* Floating pill container with glassmorphism */}
-      <div className="mx-auto max-w-[2000px] rounded-2xl border border-white/60 bg-white/80 shadow-lg shadow-primary-100/30 backdrop-blur-[20px] supports-[backdrop-filter]:bg-white/65" style={{ boxShadow: '0 4px 24px rgba(79, 70, 229, 0.08), 0 1px 3px rgba(0,0,0,0.04), 0 12px 40px -8px rgba(79, 70, 229, 0.06)' }}>
+      <div className="mx-auto max-w-[2000px] rounded-2xl border border-primary-100/50 bg-[#F8FAFF]/90 shadow-lg shadow-primary-100/30 backdrop-blur-[20px] supports-[backdrop-filter]:bg-[#F8FAFF]/80" style={{ boxShadow: '0 4px 24px rgba(79, 70, 229, 0.08), 0 1px 3px rgba(0,0,0,0.04), 0 12px 40px -8px rgba(79, 70, 229, 0.06)' }}>
         <div className="flex h-16 items-center justify-between px-5 sm:px-6">
           {/* Logo */}
           <Link
@@ -91,17 +90,17 @@ export function Navbar() {
             className="flex items-center gap-2 font-bold text-lg transition-opacity hover:opacity-80"
           >
             <Image
-              src="/logo.png"
-              alt="DailyLang Logo"
+              src="/logo.webp"
+              alt="DailyEng Logo"
               width={36}
               height={36}
-              className="rounded-xl object-cover shadow-sm"
+              className=""
               style={{ width: "auto", height: "auto" }}
               priority
             />
             <div>
               <span className="hidden text-xl sm:inline text-gray-800">Daily</span>
-              <span className="hidden text-xl sm:inline text-primary-600 font-extrabold">Lang</span>
+              <span className="hidden text-xl sm:inline text-primary-600 font-extrabold">Eng</span>
             </div>
           </Link>
 
@@ -135,7 +134,7 @@ export function Navbar() {
                   href={item.href}
                   onClick={() => startNavigation(item.href)}
                   className={`text-[13.5px] px-4 py-2 rounded-xl font-semibold transition-all duration-300 ${isActive
-                      ? "bg-primary-500 text-white shadow-sm shadow-primary-200 hover:-translate-y-0.5"
+                      ? "bg-primary-100 text-primary-700 shadow-xs"
                       : "text-gray-500 hover:text-gray-900 hover:bg-white/60 hover:backdrop-blur-sm"
                     }`}
                 >
@@ -197,7 +196,7 @@ export function Navbar() {
                         key={subItem.href}
                         href={subItem.href}
                         className={`block pl-5 py-2 rounded-xl text-sm font-medium transition-colors ${activePath.startsWith(subItem.href)
-                            ? "bg-primary-500 text-white"
+                            ? "bg-primary-100 text-primary-700"
                             : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                           }`}
                         onClick={() => { startNavigation(subItem.href); setMobileOpen(false); }}
@@ -215,7 +214,7 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   className={`block px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors ${isActive
-                      ? "bg-primary-500 text-white"
+                      ? "bg-primary-100 text-primary-700"
                       : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                     }`}
                   onClick={() => { startNavigation(item.href); setMobileOpen(false); }}

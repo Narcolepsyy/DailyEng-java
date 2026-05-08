@@ -25,9 +25,28 @@ Tóm tắt ngắn gọn các chương tiếp theo.
 
 **2.1. Backend (Trọng tâm - Viết thật sâu phần này để lấy điểm cao):**
 *   **2.1.1. Nền tảng ngôn ngữ Java 21:** Nêu ra việc dùng các tính năng ngôn ngữ hiện đại. *Gợi ý:* Chú trọng việc bạn sử dụng **Java Records** cho các Object truyền tải DTO để mã nguồn ngắn gọn, tối ưu bộ nhớ và an toàn luồng dữ liệu (Immutable).
+    *   **Nó là gì:** Java 21 là phiên bản phát hành dài hạn (LTS) ổn định mới nhất của ngôn ngữ lập trình Java, mang lại nhiều cải tiến về cú pháp và hiệu năng xử lý đa luồng.
+    *   **Cách dự án sử dụng:** Toàn bộ Backend được phát triển bằng Java 21. Cụ thể, cấu trúc `record` được sử dụng để khai báo các lớp truyền tải dữ liệu (DTO như `SpeakingDtos`, `UserDtos`), thay thế cho các class truyền thống.
+    *   **Vì sao lựa chọn:** Mã nguồn Java truyền thống thường tốn nhiều dòng code cho các phương thức getter/setter. Cú pháp `record` giúp tối ưu hóa việc này. Bên cạnh đó, Java 21 hỗ trợ Luồng ảo (Virtual Threads), giải quyết tốt bài toán chờ phản hồi (blocking I/O) khi gọi các API từ bên ngoài.
+    *   **Tác dụng:** Giúp mã nguồn ngắn gọn, dễ bảo trì. Các đối tượng `record` có tính bất biến (Immutable), đảm bảo an toàn dữ liệu khi truyền tải giữa các tầng hệ thống, giảm thiểu lỗi phát sinh. Đồng thời, hiệu suất máy chủ được tối ưu khi có nhiều người dùng truy cập đồng thời.
+
 *   **2.1.2. Spring Boot 3.4:** Core của hệ thống backend. *Yêu cầu:* Giải thích sơ bộ cơ chế IoC (Inversion of Control) và Dependency Injection (DI) thực hiện thông qua những Annotation nào (`@Service`, `@RestController`).
-*   **2.1.3. Cấu hình ORM với Spring Data JPA & Hibernate:** Cơ chế mapping tự động biến bảng CSDL thành Java Entity nhằm truy vấn không cần lệnh SQL raw.
+    *   **Nó là gì:** Spring Boot là một framework mạnh mẽ dành cho nền tảng Java, giúp thiết lập và phát triển các ứng dụng web một cách nhanh chóng, giảm thiểu cấu hình thủ công phức tạp.
+    *   **Cách dự án sử dụng:** Spring Boot đóng vai trò là kiến trúc lõi của hệ thống Backend. Dự án sử dụng các Annotation (`@RestController`, `@Service`) để phân chia rõ ràng các tầng tiếp nhận API và tầng xử lý nghiệp vụ.
+    *   **Vì sao lựa chọn:** Framework này cung cấp cơ chế Tiêm phụ thuộc (Dependency Injection - DI). Thay vì lập trình viên phải tự khởi tạo và liên kết các thành phần với nhau một cách thủ công, Spring sẽ tự động quản lý vòng đời và kết nối chúng lúc khởi động.
+    *   **Tác dụng:** Giúp cấu trúc mã nguồn được phân tách rõ ràng (loose coupling). Khi cần bảo trì, sửa lỗi hoặc mở rộng chức năng, lập trình viên có thể thực hiện trên từng module độc lập mà không làm ảnh hưởng đến tính ổn định của toàn bộ hệ thống.
+
+*   **2.1.3. Ánh xạ dữ liệu với Spring Data JPA & Hibernate:** Cơ chế mapping tự động biến bảng CSDL thành Java Entity nhằm truy vấn không cần lệnh SQL raw.
+    *   **Nó là gì:** Đây là kỹ thuật Ánh xạ đối tượng - quan hệ (ORM), giúp tự động chuyển đổi giữa các bảng trong cơ sở dữ liệu và các đối tượng (class) trong ngôn ngữ Java.
+    *   **Cách dự án sử dụng:** Các bảng dữ liệu được định nghĩa bằng các Annotation như `@Entity`, `@Table`. Quá trình lưu trữ hay truy vấn được thực hiện thông qua các phương thức Java thay vì viết lệnh SQL trực tiếp. Dự án cũng cấu hình mở rộng để hệ thống thao tác trực tiếp với kiểu dữ liệu `JSONB` của PostgreSQL.
+    *   **Vì sao lựa chọn:** Việc tự viết câu lệnh SQL cho mọi thao tác truy vấn thường mất nhiều thời gian, khó bảo trì và dễ vấp phải lỗ hổng bảo mật nghiêm trọng (SQL Injection). 
+    *   **Tác dụng:** Giảm đáng kể lượng mã nguồn tương tác với cơ sở dữ liệu và tăng cường bảo mật. Hơn nữa, việc hỗ trợ kiểu dữ liệu `JSONB` giúp ứng dụng lưu trữ linh hoạt các nội dung bài học có cấu trúc đa dạng mà không cần thiết kế hệ thống bảng phụ phức tạp.
+
 *   **2.1.4. Bảo mật với Spring Security & JWT:** *Điểm ăn tiền:* Nêu rõ việc hệ thống từ chối dùng Session truyền thống (để cho stateless), kết hợp tạo JWT được đóng vào **HttpOnly Cookies**, cùng với Google OAuth 2.0 chống mọi cuộc tấn công lấy cắp token XSS.
+    *   **Nó là gì:** Spring Security là bộ khung bảo mật tiêu chuẩn cho ứng dụng Java. JWT (JSON Web Token) là một chuẩn mã hóa dùng để xác thực quyền truy cập của người dùng.
+    *   **Cách dự án sử dụng:** Hệ thống không sử dụng phiên đăng nhập (Session) truyền thống mà dùng JWT. Khi xác thực thành công (kể cả qua Google OAuth 2.0), token JWT sẽ được gắn vào một Cookie bảo mật đặc biệt (HttpOnly Cookie) để giao tiếp với client.
+    *   **Vì sao lựa chọn:** Việc tự xây dựng luồng kiểm tra bảo mật từ đầu tiềm ẩn rất nhiều rủi ro. Spring Security cung cấp sẵn các bộ lọc (Security Filter) chuẩn hóa để ngăn chặn các yêu cầu độc hại từ bên ngoài. Đồng thời, việc lưu token vào HttpOnly Cookie giúp bảo vệ hệ thống khỏi các cuộc tấn công đánh cắp phiên đăng nhập.
+    *   **Tác dụng:** Đảm bảo tính an toàn cho hệ thống và dữ liệu người dùng (phòng chống tấn công XSS). Cơ chế không lưu Session (Stateless) giúp máy chủ dễ dàng mở rộng, đồng thời tích hợp Google OAuth 2.0 mang lại trải nghiệm đăng nhập liền mạch cho người sử dụng.
 
 **2.2. Cơ sở dữ liệu:** 
 PostgreSQL 16 và quy trình Quản lý vòng đời DB (Database Migrations) bằng **Flyway**. *Gợi ý:* Hãy nói về cách Flyway tự động khởi tạo các bảng (`V1__init.sql`) khi chạy app Java giúp làm việc nhóm dễ dàng mà không cãi nhau về file SQL.

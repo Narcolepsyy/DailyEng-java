@@ -45,11 +45,17 @@ public class AudioConversionService {
         try {
             Files.write(inputFile.toPath(), inputAudio);
 
-            // ffmpeg: convert to WAV PCM 16kHz mono (Azure STT optimal format)
+            // Handle VS Code stale PATH issue by checking absolute path or falling back to "ffmpeg"
+            String ffmpegCmd = "ffmpeg";
+            File localFfmpeg = new File("C:\\Users\\MaiVu\\AppData\\Local\\Microsoft\\WinGet\\Packages\\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\\ffmpeg-8.1.1-full_build\\bin\\ffmpeg.exe");
+            if (localFfmpeg.exists()) {
+                ffmpegCmd = localFfmpeg.getAbsolutePath();
+            }
+
             Process process;
             try {
                 process = new ProcessBuilder(
-                        "ffmpeg", "-y",
+                        ffmpegCmd, "-y",
                         "-i", inputFile.getAbsolutePath(),
                         "-ar", "16000",     // 16kHz sample rate
                         "-ac", "1",         // mono

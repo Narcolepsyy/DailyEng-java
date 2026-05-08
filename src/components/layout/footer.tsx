@@ -9,9 +9,9 @@ export function Footer() {
   const pathname = usePathname()
 
   const isImmersivePage =
-    pathname?.startsWith("/speaking/session/") ||
-    (pathname?.startsWith("/vocab/") && pathname !== "/vocab") ||
-    (pathname?.startsWith("/grammar/") && pathname !== "/grammar")
+    pathname?.startsWith("/speaking-room/session/") ||
+    (pathname?.startsWith("/vocabulary-hub/") && pathname !== "/vocabulary-hub") ||
+    (pathname?.startsWith("/grammar-hub/") && pathname !== "/grammar-hub")
 
   if (isImmersivePage) {
     return null
@@ -32,7 +32,7 @@ export function Footer() {
           {/* About DailyEng */}
           <div className="lg:col-span-1 flex flex-col items-center lg:items-start">
             <Image
-              src="/logo.png"
+              src="/logo.webp"
               alt="DailyEng Logo"
               width={96}
               height={82}

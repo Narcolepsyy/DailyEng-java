@@ -20,11 +20,9 @@ export default function GrammarPage() {
           title="GRAMMAR HUB"
           description="Master English grammar with structured lessons."
           imageSrc="/hero-grammar.jpg"
-          primaryAction={{ label: "Build Study Plan" }}
-          secondaryAction={{ label: "Choose Learning Topic" }}
+          primaryAction={{ label: "Choose Learning Topic", href: "#topics" }}
           notification={{
-            text: "Today's lessons: 5 lessons",
-            actionLabel: "Review now",
+            text: "Overview: 4 Topic Groups • 16 Essential Grammar Topics",
           }}
           decorativeWords={["grammar", "structure", "syntax"]}
         />

@@ -1,6 +1,6 @@
 import type React from "react";
 import type { Metadata } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Nunito } from "next/font/google";
 import { ConditionalLayout } from "@/components/layout/conditional-layout";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { UserProfileProvider } from "@/contexts/UserProfileContext";
@@ -12,26 +12,19 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { XpToastProvider } from "@/components/xp/xp-toast";
 import { LevelUpProvider } from "@/components/xp/xp-level-up-modal";
 
-
-const inter = Inter({
+const nunito = Nunito({
   subsets: ["latin"],
-  variable: "--font-inter",
+  weight: ["200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-nunito",
   display: "swap",
-});
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-jakarta",
-  display: "swap",
-  weight: ["500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
-  title: "DailyLang - Learn Languages by Interaction!",
+  title: "DailyEng - Master English the Smart Way!",
   description:
-    "Master new languages with AI-powered vocabulary, speaking, and grammar lessons.",
+    "Master English with AI-powered vocabulary, speaking, and grammar lessons.",
   icons: {
-    icon: "/dailylang-favicon.png",
+    icon: "/dailyeng.ico",
   },
 };
 
@@ -41,16 +34,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${nunito.variable} scroll-smooth`}>
       <body
-        className={`${inter.className} ${jakarta.variable} bg-background text-foreground`}
+        className={`${nunito.className} bg-background text-foreground font-sans`}
         suppressHydrationWarning
       >
         <SessionProvider>
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
-            enableSystem
+            defaultTheme="light"
+            enableSystem={false}
             disableTransitionOnChange
           >
             <UserProfileProvider>
