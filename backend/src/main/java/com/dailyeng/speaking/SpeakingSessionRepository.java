@@ -7,7 +7,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
 
+import java.util.Optional;
+
 public interface SpeakingSessionRepository extends JpaRepository<SpeakingSession, String> {
+        Optional<SpeakingSession> findByIdAndUserId(String id, String userId);
+
         List<SpeakingSession> findByUserIdOrderByCreatedAtDesc(String userId);
 
         Page<SpeakingSession> findByUserId(String userId, Pageable pageable);
