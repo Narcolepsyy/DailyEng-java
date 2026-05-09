@@ -75,11 +75,8 @@ public class SpeakingSessionService {
 
         @Transactional
         public SubmitTurnResponse submitTurn(String userId, String sessionId, SubmitTurnRequest req) {
-                var session = sessionRepo.findById(sessionId)
+                var session = sessionRepo.findByIdAndUserId(sessionId, userId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Session not found: " + sessionId));
-                if (!userId.equals(session.getUserId())) {
-                        throw new ResourceNotFoundException("Session not found: " + sessionId);
-                }
                 var scenario = scenarioRepo.findById(session.getScenarioId())
                                 .orElseThrow(() -> new ResourceNotFoundException("Scenario not found"));
                 var turns = turnRepo.findBySessionIdOrderByTimestampAsc(sessionId);
@@ -162,11 +159,8 @@ public class SpeakingSessionService {
 
         @Transactional(readOnly = true)
         public GeminiService.SpeakingHintResult generateHint(String userId, String sessionId) {
-                var session = sessionRepo.findById(sessionId)
+                var session = sessionRepo.findByIdAndUserId(sessionId, userId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Session not found: " + sessionId));
-                if (!userId.equals(session.getUserId())) {
-                        throw new ResourceNotFoundException("Session not found: " + sessionId);
-                }
                 var scenario = scenarioRepo.findById(session.getScenarioId())
                                 .orElseThrow(() -> new ResourceNotFoundException("Scenario not found"));
                 var turns = turnRepo.findBySessionIdOrderByTimestampAsc(sessionId);
@@ -191,11 +185,8 @@ public class SpeakingSessionService {
 
         @Transactional
         public SessionAnalysisResponse analyzeAndScoreSession(String userId, String sessionId) {
-                var session = sessionRepo.findById(sessionId)
+                var session = sessionRepo.findByIdAndUserId(sessionId, userId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Session not found: " + sessionId));
-                if (!userId.equals(session.getUserId())) {
-                        throw new ResourceNotFoundException("Session not found: " + sessionId);
-                }
                 var scenario = scenarioRepo.findById(session.getScenarioId())
                                 .orElseThrow(() -> new ResourceNotFoundException("Scenario not found"));
                 var turns = turnRepo.findBySessionIdOrderByTimestampAsc(sessionId);
@@ -416,11 +407,8 @@ public class SpeakingSessionService {
 
         @Transactional(readOnly = true)
         public SessionDetailResponse getSessionDetails(String userId, String sessionId) {
-                var session = sessionRepo.findById(sessionId)
+                var session = sessionRepo.findByIdAndUserId(sessionId, userId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Session not found: " + sessionId));
-                if (!userId.equals(session.getUserId())) {
-                        throw new ResourceNotFoundException("Session not found: " + sessionId);
-                }
                 var turns = turnRepo.findBySessionIdOrderByTimestampAsc(sessionId);
 
                 // Build error categories
@@ -474,12 +462,8 @@ public class SpeakingSessionService {
 
         @Transactional
         public void deleteSession(String sessionId, String userId) {
-                var session = sessionRepo.findById(sessionId)
+                var session = sessionRepo.findByIdAndUserId(sessionId, userId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Session not found: " + sessionId));
-                if (!userId.equals(session.getUserId())) {
-                        throw new com.dailyeng.common.exception.UnauthorizedException(
-                                        "You can only delete your own sessions");
-                }
                 var turns = turnRepo.findBySessionIdOrderByTimestampAsc(sessionId);
                 for (var turn : turns) {
                         turnErrorRepo.deleteByTurnId(turn.getId());
