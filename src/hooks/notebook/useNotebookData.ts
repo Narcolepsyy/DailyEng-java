@@ -30,11 +30,16 @@ export function useNotebookData({
   )
 
   const [isPending, startTransition] = useTransition()
+  const [isLoadingNotebooks, setIsLoadingNotebooks] = useState(true)
 
   // ── Fetch real notebook data from backend on mount ──
   useEffect(() => {
-    if (!user?.id) return
+    if (!user?.id) {
+      setIsLoadingNotebooks(false)
+      return
+    }
 
+    setIsLoadingNotebooks(true)
     getNotebooks().then(async (notebooks) => {
       if (notebooks.length === 0) return
 
@@ -110,6 +115,8 @@ export function useNotebookData({
       }
     }).catch(err => {
       console.warn("[useNotebookData] Failed to fetch notebooks:", err)
+    }).finally(() => {
+      setIsLoadingNotebooks(false)
     })
   }, [user?.id])
 
@@ -322,6 +329,7 @@ export function useNotebookData({
     setGrammarItems,
     collections,
     isPending,
+    isLoadingNotebooks,
     dueCount,
     getStats,
     handleAddCollection,

@@ -104,23 +104,41 @@ export function AddToNotebookDialog({ type, itemPayload, itemPayloads, defaultNo
                 throw new Error("No notebook selected")
             }
 
-            // 2. Add item(s) to notebook
-            const results = await Promise.all(payloads.map(payload => createNotebookItem({
-                notebookId: targetNotebookId,
-                ...payload
-            })))
+            // 2. Add item(s) to notebook — sequential batching (2 at a time)
+            // Avoids overwhelming the backend connection pool on Render Free Tier
+            const BATCH_SIZE = 2
+            const results: Awaited<ReturnType<typeof createNotebookItem>>[] = []
+            for (let i = 0; i < payloads.length; i += BATCH_SIZE) {
+                const batch = payloads.slice(i, i + BATCH_SIZE)
+                const batchResults = await Promise.all(
+                    batch.map(payload => createNotebookItem({ notebookId: targetNotebookId, ...payload }))
+                )
+                results.push(...batchResults)
+                // Small delay between batches to let the server breathe
+                if (i + BATCH_SIZE < payloads.length) {
+                    await new Promise(r => setTimeout(r, 150))
+                }
+            }
 
-            const failed = results.filter(r => !r.success)
-            if (failed.length > 0) {
-                throw new Error(failed[0].error || "Failed to save some items")
+            const saved_count = results.filter(r => r.success).length
+            const failed_count = results.filter(r => !r.success).length
+
+            if (saved_count === 0) {
+                throw new Error("Failed to save any items. Please try again.")
             }
 
             setSaved(true)
-            toast.success("Saved successfully!", {
-                description: itemPayloads 
-                    ? `Added ${itemPayloads.length} items to notebook.`
-                    : `Added "${itemPayload?.word}" to notebook.`,
-            })
+            if (failed_count > 0) {
+                toast.warning(`Saved ${saved_count}/${results.length} items`, {
+                    description: `${failed_count} item(s) failed. Please try saving them again.`,
+                })
+            } else {
+                toast.success("Saved successfully!", {
+                    description: itemPayloads
+                        ? `Added ${saved_count} items to notebook.`
+                        : `Added "${itemPayload?.word}" to notebook.`,
+                })
+            }
             
             setTimeout(() => setOpen(false), 1500)
 

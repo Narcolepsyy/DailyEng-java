@@ -51,6 +51,7 @@ export default function NotebookPageClient({
             collectionTypeFilter={state.collectionTypeFilter}
             dueCount={state.dueCount}
             stats={state.stats}
+            isLoading={state.isLoadingNotebooks}
             onCollectionTypeChange={(type) => { state.setCollectionTypeFilter(type); state.setSelectedCollection("") }}
             onSelectCollection={state.selectCollection}
             onNewNotebook={() => state.setNewCollectionOpen(true)}

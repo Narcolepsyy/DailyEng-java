@@ -12,6 +12,7 @@ interface NotebookSidebarProps {
   collectionTypeFilter: CollectionType
   dueCount: number
   stats: { total: number; avgMastery: number }
+  isLoading?: boolean
   onCollectionTypeChange: (type: CollectionType) => void
   onSelectCollection: (id: string) => void
   onNewNotebook: () => void
@@ -20,7 +21,7 @@ interface NotebookSidebarProps {
 
 export function NotebookSidebar({
   collections, filteredCollections, selectedCollection,
-  collectionTypeFilter, dueCount, stats,
+  collectionTypeFilter, dueCount, stats, isLoading = false,
   onCollectionTypeChange, onSelectCollection, onNewNotebook, onDeleteNotebook,
 }: NotebookSidebarProps) {
   return (
@@ -53,45 +54,64 @@ export function NotebookSidebar({
 
         {/* Collection List */}
         <div className="space-y-1 max-h-[300px] overflow-y-auto scrollbar-none notebook-enter-stagger">
-          {filteredCollections.map((collection) => (
-            <div
-              key={collection.id}
-              className={`collection-item flex w-full items-center gap-3 group ${
-                selectedCollection === collection.id ? "collection-item-active" : ""
-              }`}
-            >
-              <button
-                onClick={() => onSelectCollection(collection.id)}
-                className="flex items-center gap-3 flex-1 cursor-pointer"
-              >
-                <div className={`h-9 w-9 rounded-xl flex items-center justify-center transition-all duration-200 ${
-                  selectedCollection === collection.id
-                    ? "bg-gradient-to-br from-primary-600 to-primary-500 text-white shadow-md shadow-primary-500/25"
-                    : "bg-primary-50 text-primary-500"
-                }`}>
-                  {collection.icon}
-                </div>
-                <div className="flex-1 text-left min-w-0">
-                  <p className={`font-semibold text-sm truncate ${
-                    selectedCollection === collection.id ? "text-primary-700" : "text-gray-800"
-                  }`}>{collection.name}</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs text-gray-400">{collection.count} items</span>
-                    <span className="text-xs text-emerald-500 font-medium">{collection.mastered} mastered</span>
+          {isLoading ? (
+            // Skeleton loading state — prevents empty-notebook confusion on cold start
+            <div className="space-y-2 py-1">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="flex items-center gap-3 px-1 py-1 animate-pulse">
+                  <div className="h-9 w-9 rounded-xl bg-primary-100/60 flex-shrink-0" />
+                  <div className="flex-1 space-y-1.5">
+                    <div className="h-3 bg-primary-100/80 rounded-full w-3/4" />
+                    <div className="h-2.5 bg-gray-100 rounded-full w-1/2" />
                   </div>
                 </div>
-              </button>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Delete notebook"
-                className="h-7 w-7 rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-50 transition-all duration-200 cursor-pointer"
-                onClick={(e) => { e.stopPropagation(); onDeleteNotebook(collection.id) }}
-              >
-                <Trash2 className="h-3.5 w-3.5 text-gray-400 hover:text-red-500 transition-colors" />
-              </Button>
+              ))}
             </div>
-          ))}
+          ) : filteredCollections.length === 0 ? (
+            <p className="text-xs text-gray-400 text-center py-4 px-2">
+              No notebooks yet. Create one below!
+            </p>
+          ) : (
+            filteredCollections.map((collection) => (
+              <div
+                key={collection.id}
+                className={`collection-item flex w-full items-center gap-3 group ${
+                  selectedCollection === collection.id ? "collection-item-active" : ""
+                }`}
+              >
+                <button
+                  onClick={() => onSelectCollection(collection.id)}
+                  className="flex items-center gap-3 flex-1 cursor-pointer"
+                >
+                  <div className={`h-9 w-9 rounded-xl flex items-center justify-center transition-all duration-200 ${
+                    selectedCollection === collection.id
+                      ? "bg-gradient-to-br from-primary-600 to-primary-500 text-white shadow-md shadow-primary-500/25"
+                      : "bg-primary-50 text-primary-500"
+                  }`}>
+                    {collection.icon}
+                  </div>
+                  <div className="flex-1 text-left min-w-0">
+                    <p className={`font-semibold text-sm truncate ${
+                      selectedCollection === collection.id ? "text-primary-700" : "text-gray-800"
+                    }`}>{collection.name}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-gray-400">{collection.count} items</span>
+                      <span className="text-xs text-emerald-500 font-medium">{collection.mastered} mastered</span>
+                    </div>
+                  </div>
+                </button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Delete notebook"
+                  className="h-7 w-7 rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-50 transition-all duration-200 cursor-pointer"
+                  onClick={(e) => { e.stopPropagation(); onDeleteNotebook(collection.id) }}
+                >
+                  <Trash2 className="h-3.5 w-3.5 text-gray-400 hover:text-red-500 transition-colors" />
+                </Button>
+              </div>
+            ))
+          )}
         </div>
 
         {/* New Notebook Button */}
