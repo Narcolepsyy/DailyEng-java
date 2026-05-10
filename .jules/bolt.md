@@ -54,3 +54,6 @@
 ## 2024-05-03 - Prevent array allocation overhead in large list counts
 **Learning:** In Next.js client components processing large lists (like vocabulary items fetched from the server), calculating a count using `.filter(...).length` causes O(N) intermediate array allocation and significant GC overhead.
 **Action:** Always replace `.filter(...).length` with a single in-place `.reduce()` or `for` loop to prevent unnecessary Garbage Collection and memory allocations. Also always use `.getTime()` when comparing Dates inside these loops.
+## 2025-05-19 - [Consolidate Array Traversals in Practice Mode summaries]
+**Learning:** In the `GrammarPracticeMode` and `VocabPracticeMode` components, the summary view calculated `avgScore` using `.reduce()` and then immediately calculated high scores using `.filter(...).length`. Traversing the same `history` array multiple times during render is inefficient and generates unnecessary intermediate arrays (from `.filter()`), causing avoidable GC overhead in React components.
+**Action:** Replace multiple sequential array traversals (like `.reduce` and `.filter().length`) with a single classic `for` loop to compute all derived metrics in exactly one O(N) pass, reducing time complexity from O(k*N) to O(N) and eliminating intermediate array allocations.

@@ -131,7 +131,14 @@ export function VocabPracticeMode() {
     // The above logic increments index, which implies we move to the new question.
 
     if (isSummary) {
-        const avgScore = Math.round(history.reduce((acc, curr) => acc + curr.score, 0) / history.length || 0)
+        // ⚡ Bolt: Replace multiple O(N) array traversals (.reduce, .filter().length) with a single O(N) loop
+        let totalScore = 0;
+        let highScores = 0;
+        for (let i = 0; i < history.length; i++) {
+            totalScore += history[i].score;
+            if (history[i].score >= 80) highScores++;
+        }
+        const avgScore = history.length > 0 ? Math.round(totalScore / history.length) : 0;
 
         return (
             <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in zoom-in duration-300">
@@ -152,7 +159,7 @@ export function VocabPracticeMode() {
                         </div>
                         <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                             <span className="block text-3xl font-bold text-green-600">
-                                {history.filter(h => h.score >= 80).length}
+                                {highScores}
                             </span>
                             <span className="text-sm text-slate-500 font-medium">High Scores</span>
                         </div>
