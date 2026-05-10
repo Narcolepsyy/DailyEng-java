@@ -20,6 +20,10 @@ import org.springframework.web.client.RestClient;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HexFormat;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.time.Duration;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 
 /**
  * Authentication service handling register, login, Google OAuth, and password management.
@@ -42,6 +46,10 @@ public class AuthService {
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     private static final String GOOGLE_TOKENINFO_URL = "https://oauth2.googleapis.com/tokeninfo?id_token=";
+    
+    // Simple in-memory cache to prevent redundant Google API calls for the same token
+    // Key: idToken, Value: Google User Info (JsonNode)
+    private final Map<String, JsonNode> googleTokenCache = new ConcurrentHashMap<>();
 
     // ========================
     // Registration & Login
@@ -217,17 +225,37 @@ public class AuthService {
     // ========================
 
     private JsonNode verifyGoogleToken(String idToken) {
+        // 1. Check cache first
+        if (googleTokenCache.containsKey(idToken)) {
+            log.debug("Using cached Google token info");
+            return googleTokenCache.get(idToken);
+        }
+
         try {
+            // 2. Configure Timeout (5 seconds)
+            SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+            factory.setConnectTimeout(5000);
+            factory.setReadTimeout(5000);
+
             String url = GOOGLE_TOKENINFO_URL + idToken;
-            String responseBody = restClientBuilder.build()
+            String responseBody = restClientBuilder
+                    .requestFactory(factory)
+                    .build()
                     .get()
                     .uri(url)
                     .retrieve()
                     .body(String.class);
-            return objectMapper.readTree(responseBody);
+            
+            JsonNode result = objectMapper.readTree(responseBody);
+            
+            // 3. Store in cache (limited size or simple cleanup could be added for production)
+            if (googleTokenCache.size() > 1000) googleTokenCache.clear(); // Simple eviction
+            googleTokenCache.put(idToken, result);
+            
+            return result;
         } catch (Exception e) {
-            log.error("Failed to verify Google ID token: {}", e.getMessage());
-            throw new BadRequestException("Invalid or failed to verify Google token");
+            log.error("Failed to verify Google ID token (possibly timeout or network error): {}", e.getMessage());
+            throw new BadRequestException("Google authentication service is temporarily unavailable or token is invalid");
         }
     }
 
