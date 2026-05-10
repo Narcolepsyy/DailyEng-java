@@ -24,9 +24,8 @@ export function XpBar() {
 
   useEffect(() => {
     fetchStats();
-    // Refresh every 60s
-    const interval = setInterval(fetchStats, 60_000);
-    return () => clearInterval(interval);
+    // Intentionally removed setInterval polling here.
+    // XP updates are now entirely event-driven via the "xp-awarded" event below.
   }, [fetchStats]);
 
   // Listen for custom xp-awarded events (dispatched by XpToast)

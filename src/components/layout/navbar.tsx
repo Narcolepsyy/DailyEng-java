@@ -30,9 +30,9 @@ const NavbarAuthSection = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex items-center gap-2">
-        <div className="h-8 w-16 rounded-xl bg-gray-100 animate-pulse hidden sm:block" />
-        <div className="h-8 w-20 rounded-xl bg-gray-100 animate-pulse" />
+      <div className="flex items-center gap-2 min-w-[80px] justify-end">
+        <div className="h-9 w-9 rounded-full bg-gray-100/80 animate-pulse hidden sm:block" />
+        <div className="h-9 w-9 rounded-full bg-gray-100/80 animate-pulse" />
       </div>
     ),
   }

@@ -39,20 +39,21 @@ export function UserProfileProvider({
   const lastFetchedUserId = useRef<string | null>(null);
 
   const fetchProfile = useCallback(async () => {
-    if (status === "loading") return;
-
-    if (!user?.id) {
+    // If explicitly unauthenticated, clear profile
+    if (status === "unauthenticated") {
       setProfile(null);
       setIsLoading(false);
       lastFetchedUserId.current = null;
       return;
     }
 
-    // Skip if already fetched for this user
-    if (lastFetchedUserId.current === user.id) {
+    // Skip if already fetched for this user (prevents double fetch when auth status updates)
+    if (user?.id && lastFetchedUserId.current === user.id) {
       setIsLoading(false);
       return;
     }
+
+    // Fetch immediately even if status is "loading" (Parallel Fetching)
 
     try {
       const result = await getUserProfile();
@@ -62,7 +63,7 @@ export function UserProfileProvider({
           email: result.user.email,
           image: result.user.image,
         });
-        lastFetchedUserId.current = user.id;
+        lastFetchedUserId.current = result.user.id || user?.id || "fetched";
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
