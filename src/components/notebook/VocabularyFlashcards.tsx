@@ -60,7 +60,7 @@ export function VocabularyFlashcards({
   const progressPercent = flashcardItems.length > 0 ? Math.round((totalCards / flashcardItems.length) * 100) : 0
 
   return (
-    <div className="max-w-5xl mx-auto notebook-enter">
+    <div className="max-w-2xl mx-auto notebook-enter">
       {/* Progress Bar */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
@@ -91,11 +91,11 @@ export function VocabularyFlashcards({
       {/* Flashcard */}
       <div className="cursor-pointer mb-8" onClick={() => setIsFlipped(!isFlipped)} style={{ perspective: "1200px" }}>
         <div
-          className={`relative w-full h-[480px] transition-transform duration-500 ${cardAnimation}`}
+          className={`relative w-full h-[360px] transition-transform duration-500 ${cardAnimation}`}
           style={{ transformStyle: "preserve-3d", transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)" }}
         >
           {/* Front of Card */}
-          <div className="flashcard-face notebook-card p-8 !border-primary-200/60 !shadow-xl" style={{ backfaceVisibility: "hidden" }}>
+          <div className="flashcard-face notebook-card p-6 !border-primary-200/60 !shadow-xl" style={{ backfaceVisibility: "hidden" }}>
             {cardAnimation === "swipe-left" && (
               <div className="absolute inset-0 bg-amber-100/60 flex items-center justify-center rounded-2xl z-10 transition-all duration-300 animate-in fade-in">
                 <X className="h-40 w-40 text-amber-500 stroke-[4] animate-in zoom-in duration-300" />
@@ -117,8 +117,14 @@ export function VocabularyFlashcards({
             </Button>
 
             <div className="flex flex-col items-center justify-center h-full gap-2">
-              <h2 className="gradient-text notebook-heading text-5xl lg:text-6xl font-extrabold">{currentItem.word}</h2>
-              <p className="text-gray-400 font-mono text-lg">{currentItem.pronunciation}</p>
+              <h2 className="gradient-text notebook-heading text-3xl lg:text-4xl font-extrabold">{currentItem.word}</h2>
+              {currentItem.pronunciation && currentItem.pronunciation !== "/.../" && currentItem.pronunciation !== "" && (
+                <p className="text-gray-400 font-mono text-lg">{currentItem.pronunciation}</p>
+              )}
+              <Button variant="ghost" size="icon" aria-label="Listen to pronunciation" className="h-10 w-10 mt-2 text-primary-400 hover:text-primary-600 hover:bg-primary-50 transition-colors cursor-pointer rounded-full"
+                onClick={(e) => { e.stopPropagation(); speakText(currentItem.word); }}>
+                <Volume2 className="h-6 w-6" />
+              </Button>
             </div>
           </div>
 
@@ -128,7 +134,9 @@ export function VocabularyFlashcards({
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <h2 className="notebook-heading text-xl font-bold text-gray-900">{currentItem.word}</h2>
-                  <p className="text-sm text-gray-400 font-mono">{currentItem.pronunciation}</p>
+                  {currentItem.pronunciation && currentItem.pronunciation !== "/.../" && currentItem.pronunciation !== "" && (
+                    <p className="text-sm text-gray-400 font-mono">{currentItem.pronunciation}</p>
+                  )}
                 </div>
                 <Button aria-label={starredItems.has(currentItem.id) ? "Unstar flashcard" : "Star flashcard"} size="sm" variant="ghost" className="h-8 w-8 rounded-full p-0 hover:bg-yellow-50 cursor-pointer" onClick={toggleStar}>
                   <Star className={`h-4 w-4 transition-colors ${starredItems.has(currentItem.id) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`} />

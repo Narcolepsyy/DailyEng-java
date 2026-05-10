@@ -18,12 +18,14 @@ interface GrammarTopicPageClientProps {
     level: string
   }
   grammarNotes: any[]
+  quizItems: any[]
 }
 
 export default function GrammarTopicPageClient({
   topicId,
   topic,
   grammarNotes,
+  quizItems,
 }: GrammarTopicPageClientProps) {
   const router = useRouter()
   const [learningPhase, setLearningPhase] = useState<"study" | "practice">("study")
@@ -76,44 +78,17 @@ export default function GrammarTopicPageClient({
         {/* Main Content */}
         <div className="flex-1 min-h-0">
           {learningPhase === "study" ? (
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 h-full">
-              {/* Left: Grammar Points List */}
-              <div className="md:col-span-4 lg:col-span-3 bg-white rounded-xl border-2 border-border shadow-sm overflow-hidden flex flex-col h-full">
-                <div className="p-3 border-b border-border bg-slate-50 flex justify-between items-center">
-                  <h3 className="font-bold text-slate-700 text-lg">Table of Contents</h3>
-                  <span className="text-[12px] bg-white px-2 py-0.5 rounded-full border border-border text-slate-500">{grammarNotes.length}</span>
-                </div>
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
-                  {grammarNotes.map((note, idx) => (
-                    <button
-                      key={note.id}
-                      onClick={() => setCurrentNoteIndex(idx)}
-                      className={`w-full text-left px-3 py-3 rounded-lg transition-all flex items-center justify-between group text-md ${idx === currentNoteIndex
-                        ? "bg-primary-50 text-primary-700 font-semibold ring-1 ring-primary-200"
-                        : "hover:bg-slate-50 text-slate-600"
-                        }`}
-                    >
-                      <div className="flex items-center gap-3 overflow-hidden">
-                        <span className="truncate">{idx + 1}. {note.title}</span>
-                      </div>
-                      {idx === currentNoteIndex && <div className="w-1.5 h-1.5 rounded-full bg-primary-500 flex-shrink-0" />}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Right: Theory Viewer */}
-              <div className="md:col-span-8 lg:col-span-9 h-full flex flex-col">
+            <div className="flex justify-center h-full">
+              <div className="w-full max-w-4xl h-full flex flex-col">
                 <GrammarTheoryViewer
                   items={grammarNotes}
-                  currentIndex={currentNoteIndex}
-                  onIndexChange={setCurrentNoteIndex}
+                  topic={topic}
                   onComplete={() => setLearningPhase("practice")}
                 />
               </div>
             </div>
           ) : (
-            <GrammarPracticeMode />
+            <GrammarPracticeMode items={quizItems} />
           )}
         </div>
       </div>

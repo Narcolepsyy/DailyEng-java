@@ -29,6 +29,7 @@ export default async function GrammarTopicPage({ params }: PageProps) {
         level: topic.level,
       }}
       grammarNotes={topic.grammarNotes}
+      quizItems={topic.quizItems}
     />
   );
 }

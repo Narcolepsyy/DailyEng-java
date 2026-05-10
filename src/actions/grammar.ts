@@ -66,6 +66,7 @@ interface GrammarTopicDetail {
   level: string;
   grammarNotes: GrammarNote[];
   lessons: Lesson[];
+  quizItems: any[];
 }
 
 interface CurrentGrammarTopic {

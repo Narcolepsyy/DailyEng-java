@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { ShadowingPopup } from "./ShadowingPopup"
 import { reviewVocabItem } from "@/actions/srs"
 import { useXpToast } from "@/components/xp/xp-toast"
+import { AddToNotebookDialog } from "@/components/notebook/AddToNotebookDialog"
 
 // Define VocabItem locally or ensure it matches the project's type
 // Based on usage in component:
@@ -120,6 +121,11 @@ export function VocabFlashcardStack({
         const handleKeyDown = (e: KeyboardEvent) => {
             if (showShadowing) return; // Disable shortcuts if modal is open
 
+            // Ignore shortcuts if typing in an input
+            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || (e.target as HTMLElement).isContentEditable) {
+                return;
+            }
+
             // Spacebar to flip
             if (e.code === "Space") {
                 e.preventDefault() // Prevent scrolling
@@ -169,6 +175,15 @@ export function VocabFlashcardStack({
 
     if (!currentWord) return <div className="text-center p-8">No words found for this level.</div>
 
+    const itemPayload = {
+        word: currentWord.word,
+        pronunciation: currentWord.phon_n_am || currentWord.phon_br || currentWord.pronunciation,
+        meaning: currentWord.definitions ? currentWord.definitions.map(d => d.definition_en) : (currentWord.meaning ? [currentWord.meaning] : []),
+        vietnamese: currentWord.definitions ? currentWord.definitions.map(d => d.definition_vi) : (currentWord.vietnameseMeaning ? [currentWord.vietnameseMeaning] : []),
+        examples: currentWord.definitions?.flatMap(d => d.examples || []) || (currentWord.exampleSentence && currentWord.exampleTranslation ? [{ en: currentWord.exampleSentence, vi: currentWord.exampleTranslation }] : []),
+        partOfSpeech: currentWord.type || currentWord.partOfSpeech,
+    }
+
     return (
         <div className="w-full h-full flex flex-col">
             <div className="flex-1 w-full max-w-3xl mx-auto perspective-1000 group cursor-pointer relative min-h-0" onClick={() => setIsFlipped(!isFlipped)}>
@@ -181,6 +196,9 @@ export function VocabFlashcardStack({
                 >
                     {/* FRONT */}
                     <Card style={{ opacity: 1 }} className="absolute inset-0 w-full h-full backface-hidden flex flex-col items-center justify-center p-8 border-2 border-slate-200 shadow-sm bg-white rounded-3xl overflow-y-auto">
+                        <div className="absolute top-6 right-6 z-10" onClick={e => e.stopPropagation()}>
+                            <AddToNotebookDialog type="vocabulary" itemPayload={itemPayload} />
+                        </div>
                         <div className="text-center space-y-4">
                             <h2 className="text-5xl sm:text-6xl font-bold text-slate-900">{currentWord.word}</h2>
                             <span className="inline-block px-3 py-1 bg-primary-50 text-primary-600 text-sm font-bold uppercase tracking-wider rounded-full">
@@ -230,7 +248,7 @@ export function VocabFlashcardStack({
                                     <h3 className="text-2xl font-bold text-slate-900">{currentWord.word}</h3>
                                     <p className="text-primary-600 font-medium text-sm">{currentWord.type || currentWord.partOfSpeech}</p>
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex gap-2 items-center">
                                     <Button variant="ghost" size="icon" aria-label="Play UK pronunciation" className="h-8 w-8 hover:bg-blue-50 text-blue-600" onClick={(e) => handlePlayAudio(e, 'uk')}>
                                         <Volume2 className="h-4 w-4" /> <span className="sr-only">UK</span>
                                     </Button>

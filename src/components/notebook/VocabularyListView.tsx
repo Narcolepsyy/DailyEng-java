@@ -146,10 +146,12 @@ export function VocabularyListView({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <h3 className="notebook-heading text-base font-bold text-gray-900 truncate">{item.word}</h3>
-                <span className="text-xs text-gray-400 font-mono">{item.pronunciation}</span>
-                <Button variant="ghost" size="icon" aria-label="Listen to pronunciation" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                {item.pronunciation && item.pronunciation !== "/.../" && item.pronunciation !== "" && (
+                  <span className="text-xs text-gray-400 font-mono">{item.pronunciation}</span>
+                )}
+                <Button variant="ghost" size="icon" aria-label="Listen to pronunciation" className="h-6 w-6 text-primary-400 hover:text-primary-600 hover:bg-primary-50 transition-colors cursor-pointer"
                   onClick={() => speakText(item.word)}>
-                  <Volume2 className="h-3.5 w-3.5 text-gray-400" />
+                  <Volume2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
               <p className="text-sm text-gray-500 truncate">{item.vietnamese.slice(0, 2).join(", ")}</p>

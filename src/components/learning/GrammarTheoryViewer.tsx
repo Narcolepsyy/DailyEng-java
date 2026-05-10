@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Volume2, AlertTriangle, BookOpen, ChevronRight, ChevronLeft } from "lucide-react"
+import { AddToNotebookDialog } from "@/components/notebook/AddToNotebookDialog"
 
 interface GrammarExample {
     en: string
@@ -18,137 +19,133 @@ interface GrammarNote {
 
 interface GrammarTheoryViewerProps {
     items: GrammarNote[]
-    currentIndex: number
-    onIndexChange: (index: number) => void
+    topic?: {
+        category?: string
+        level?: string
+    }
     onComplete: () => void
 }
 
 export function GrammarTheoryViewer({
     items,
-    currentIndex,
-    onIndexChange,
+    topic,
     onComplete
 }: GrammarTheoryViewerProps) {
-    const currentItem = items[currentIndex]
-    const isLastCard = currentIndex === items.length - 1
-
     const handlePlayAudio = (text: string) => {
         const utterance = new SpeechSynthesisUtterance(text)
         utterance.lang = "en-US"
         window.speechSynthesis.speak(utterance)
     }
 
-    if (!currentItem) return <div className="text-center p-8">No grammar notes found.</div>
+    if (!items || items.length === 0) return <div className="text-center p-8">No grammar notes found.</div>
 
     return (
-        <div className="w-full h-full flex flex-col bg-white rounded-xl border-2 border-border shadow-sm overflow-hidden">
+        <div className="w-full h-full flex flex-col relative">
             {/* Scrollable Content Area */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-10">
-                <div className="max-w-3xl mx-auto space-y-10">
+            <div className="flex-1 overflow-y-auto custom-scrollbar pb-24">
+                <div className="max-w-4xl mx-auto space-y-8 py-4 px-2">
                     
-                    {/* Header */}
-                    <div className="space-y-4">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 text-primary-700 text-sm font-semibold">
-                            <BookOpen className="w-4 h-4" />
-                            <span>Grammar Theory</span>
-                        </div>
-                        <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 leading-tight">
-                            {currentItem.title}
-                        </h2>
-                    </div>
+                    {items.map((item, index) => {
+                        // Attempt to extract formula if the first line is short or contains "+"
+                        const lines = item.explanation.split('\n').filter(l => l.trim() !== "");
+                        let formula = "";
+                        let usage = item.explanation;
+                        
+                        if (lines.length > 1 && (lines[0].includes("+") || lines[0].length < 60)) {
+                            formula = lines[0];
+                            usage = lines.slice(1).join("\n");
+                        }
 
-                    {/* Explanation Box */}
-                    <Card className="p-6 sm:p-8 bg-slate-50 border-slate-100 shadow-none">
-                        <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                            <span>Format & Usage</span>
-                        </h3>
-                        {/* Fake color-coded formula to demonstrate the concept (since real data might just be text) */}
-                        <div className="mb-6 p-4 bg-white rounded-xl border border-slate-200 font-mono text-center overflow-x-auto whitespace-nowrap">
-                            <span className="text-blue-600 font-bold px-2 py-1 bg-blue-50 rounded">S</span>
-                            <span className="mx-2 text-slate-400">+</span>
-                            <span className="text-red-600 font-bold px-2 py-1 bg-red-50 rounded">V</span>
-                            <span className="mx-2 text-slate-400">+</span>
-                            <span className="text-green-600 font-bold px-2 py-1 bg-green-50 rounded">O</span>
-                        </div>
-                        <p className="text-slate-700 text-lg leading-relaxed whitespace-pre-wrap">
-                            {currentItem.explanation}
-                        </p>
-                    </Card>
+                        // Colors for the border (alternating for visual variety)
+                        const borderColors = ["border-l-blue-500", "border-l-amber-500", "border-l-emerald-500", "border-l-purple-500"];
+                        const borderColor = borderColors[index % borderColors.length];
 
-                    {/* Examples Section */}
-                    {currentItem.examples && currentItem.examples.length > 0 && (
-                        <div className="space-y-6">
-                            <h3 className="text-2xl font-bold text-slate-900">Examples</h3>
-                            <div className="grid gap-4">
-                                {currentItem.examples.map((ex, idx) => (
-                                    <div 
-                                        key={idx} 
-                                        className="group relative p-5 rounded-2xl border-2 border-slate-100 hover:border-primary-200 bg-white transition-all cursor-default"
-                                    >
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            aria-label="Play example audio"
-                                            className="absolute top-4 right-4 h-10 w-10 rounded-full bg-slate-50 hover:bg-primary-50 text-slate-500 hover:text-primary-600 transition-colors"
-                                            onClick={() => handlePlayAudio(ex.en)}
-                                        >
-                                            <Volume2 className="h-5 w-5" />
-                                        </Button>
-                                        <div className="pr-12">
-                                            <p className="text-xl font-medium text-slate-900 mb-2">{ex.en}</p>
-                                            <p className="text-base text-slate-500">{ex.vi}</p>
+                        return (
+                            <Card key={item.id} className={`p-8 bg-white border border-slate-100 shadow-sm rounded-2xl ${borderColor} border-l-[6px]`}>
+                                {/* Badges & Action */}
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="flex items-center gap-2">
+                                        <span className="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full">
+                                            {topic?.category || "Grammar"}
+                                        </span>
+                                        <span className="px-3 py-1 bg-emerald-500 text-white text-xs font-bold rounded-full">
+                                            {topic?.level || "A1"}
+                                        </span>
+                                    </div>
+                                    <AddToNotebookDialog 
+                                        type="grammar" 
+                                        itemPayload={{
+                                            word: item.title,
+                                            partOfSpeech: "Grammar",
+                                            meaning: item.explanation ? [item.explanation] : [],
+                                            vietnamese: [],
+                                            examples: item.examples || [],
+                                            level: topic?.level || "A1",
+                                            tags: topic?.category ? [topic.category] : []
+                                        }} 
+                                    />
+                                </div>
+
+                                {/* Title */}
+                                <h2 className="text-2xl font-bold text-slate-800 mb-6">
+                                    {item.title}
+                                </h2>
+
+                                {/* Formula (if detected) */}
+                                {formula && (
+                                    <div className="mb-6 py-4 px-6 bg-[#f8faff] rounded-xl text-blue-600 font-mono font-medium text-[15px]">
+                                        {formula}
+                                    </div>
+                                )}
+
+                                {/* Usage / Explanation */}
+                                <p className="text-slate-600 text-[15px] leading-relaxed mb-8 whitespace-pre-wrap">
+                                    {usage}
+                                </p>
+
+                                {/* Examples */}
+                                {item.examples && item.examples.length > 0 && (
+                                    <div>
+                                        <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">
+                                            Examples
+                                        </h3>
+                                        <div className="space-y-4">
+                                            {item.examples.map((ex, idx) => (
+                                                <div key={idx} className="flex items-start gap-3">
+                                                    <span className="text-blue-300 mt-1 flex-shrink-0">→</span>
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center gap-2 flex-wrap">
+                                                            <span className="text-[15px] text-slate-700">{ex.en}</span>
+                                                            <button
+                                                                onClick={() => handlePlayAudio(ex.en)}
+                                                                className="text-slate-400 hover:text-blue-500 transition-colors p-1"
+                                                                aria-label="Play audio"
+                                                            >
+                                                                <Volume2 className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                        <p className="text-sm text-slate-500 mt-1">{ex.vi}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Alert / Watch out box */}
-                    <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 flex gap-4 items-start">
-                        <div className="p-2 bg-amber-100 rounded-full shrink-0 text-amber-600">
-                            <AlertTriangle className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <h4 className="font-bold text-amber-900 mb-1">Common Mistake</h4>
-                            <p className="text-amber-800 text-sm">
-                                Be careful not to confuse this structure with similar ones. Always check the context of the sentence!
-                            </p>
-                        </div>
-                    </div>
+                                )}
+                            </Card>
+                        )
+                    })}
                 </div>
             </div>
 
-            {/* Sticky Bottom Navigation Bar */}
-            <div className="border-t border-border bg-slate-50 p-4 sm:px-8 flex items-center justify-between shrink-0">
+            {/* Floating Action Button for Practice */}
+            <div className="absolute bottom-6 right-6">
                 <Button 
-                    variant="outline" 
-                    onClick={() => onIndexChange(currentIndex - 1)}
-                    disabled={currentIndex === 0}
-                    className="gap-2 rounded-xl"
+                    onClick={onComplete}
+                    size="lg"
+                    className="gap-2 rounded-full px-8 shadow-xl shadow-primary-200/50 bg-primary-600 hover:bg-primary-700"
                 >
-                    <ChevronLeft className="w-4 h-4" /> Previous Note
+                    Practice Now <ChevronRight className="w-4 h-4" />
                 </Button>
-
-                <div className="text-sm font-medium text-slate-500 hidden sm:block">
-                    {currentIndex + 1} / {items.length}
-                </div>
-
-                {isLastCard ? (
-                    <Button 
-                        onClick={onComplete}
-                        className="gap-2 rounded-xl bg-primary-600 hover:bg-primary-700"
-                    >
-                        Practice Now <ChevronRight className="w-4 h-4" />
-                    </Button>
-                ) : (
-                    <Button 
-                        onClick={() => onIndexChange(currentIndex + 1)}
-                        className="gap-2 rounded-xl"
-                    >
-                        Next Note <ChevronRight className="w-4 h-4" />
-                    </Button>
-                )}
             </div>
         </div>
     )

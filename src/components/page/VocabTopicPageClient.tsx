@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { VocabFlashcardStack } from "@/components/learning/VocabFlashcardStack";
 import { VocabPracticeMode } from "@/components/learning/VocabPracticeMode";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Flame, BookOpen, GraduationCap, ChevronLeft } from "lucide-react";
+import { Flame, BookOpen, GraduationCap, ChevronLeft, BookPlus } from "lucide-react";
+import { AddToNotebookDialog } from "@/components/notebook/AddToNotebookDialog";
 
 interface VocabTopicPageClientProps {
   topicId: string;
@@ -97,6 +98,25 @@ export default function VocabTopicPageClient({
               </Button>
             </div>
           </div>
+          
+          {displayVocab && displayVocab.length > 0 && (
+            <AddToNotebookDialog
+              type="vocabulary"
+              defaultNotebookName={topic.title}
+              itemPayloads={displayVocab.map((w: any) => ({
+                word: w.word,
+                pronunciation: w.phon_n_am || w.phon_br || w.pronunciation,
+                meaning: w.definitions ? w.definitions.map((d: any) => d.definition_en) : (w.meaning ? [w.meaning] : []),
+                vietnamese: w.definitions ? w.definitions.map((d: any) => d.definition_vi) : (w.vietnameseMeaning ? [w.vietnameseMeaning] : []),
+                examples: w.definitions?.flatMap((d: any) => d.examples || []) || (w.exampleSentence && w.exampleTranslation ? [{ en: w.exampleSentence, vi: w.exampleTranslation }] : []),
+                partOfSpeech: w.type || w.partOfSpeech,
+              }))}
+            >
+              <Button variant="outline" size="sm" className="gap-2 text-primary-600 border-primary-200 hover:bg-primary-50">
+                <BookPlus className="h-4 w-4" /> Save Topic
+              </Button>
+            </AddToNotebookDialog>
+          )}
         </div>
 
         {/* Main Learning Content */}

@@ -318,7 +318,6 @@ export function VocabPracticeMode() {
                                 )}
                                 <Button
                                     size="icon"
-                                    aria-label="Record answer"
                                     variant={userAnswer ? "outline" : "default"}
                                     className={cn("h-16 w-16 rounded-full", userAnswer ? "border-slate-200" : "shadow-lg shadow-primary-200")}
                                     onClick={() => setUserAnswer("I really like this dish")} // Mock recording result
