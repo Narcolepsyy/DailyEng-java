@@ -3,6 +3,7 @@ package com.dailyeng.config;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -77,5 +78,15 @@ public class DatabaseConfig {
         config.setLeakDetectionThreshold(leakDetectionThreshold);
 
         return new HikariDataSource(config);
+    }
+
+    @Bean
+    public FlywayMigrationStrategy flywayMigrationStrategy() {
+        return flyway -> {
+            // Repair the history table before migrating. 
+            // This fixes checksum mismatches and aligns manual DB changes with the code.
+            flyway.repair();
+            flyway.migrate();
+        };
     }
 }

@@ -26,7 +26,6 @@ spring:
     baseline-on-migrate: true
     baseline-version: 0        # Run all migrations from V1 on fresh databases
     locations: classpath:db/migration
-    validate-on-migrate: false # Bypass checksum validation for manually-applied migrations
 
   jpa:
     hibernate:
