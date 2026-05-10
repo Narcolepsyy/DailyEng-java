@@ -79,6 +79,8 @@ public class SecurityConfig {
                         // Actuator
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/info").permitAll()
+                        // Health check endpoint for cold-start prevention (cron-job.org warmup)
+                        .requestMatchers(HttpMethod.GET, "/health").permitAll()
                         // All other requests require authentication
                         .anyRequest().authenticated()
                 )
