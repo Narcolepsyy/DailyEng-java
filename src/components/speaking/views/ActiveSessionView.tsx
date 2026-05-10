@@ -47,6 +47,9 @@ interface ActiveSessionViewProps {
   currentTurnNumber: number;
   maxTurns: number;
   t: (key: string) => string;
+  assessmentData?: AssessmentData | null;
+  onRetry: () => void;
+  language?: string;
 }
 
 export default function ActiveSessionView({
@@ -116,8 +119,8 @@ export default function ActiveSessionView({
       />
 
       {/* Main Content */}
-      <div className="flex-1 flex justify-center min-h-0 pb-4">
-        <div className="w-full max-w-4xl rounded-3xl border-2 border-border bg-primary-100 flex flex-col overflow-hidden relative shadow-lg">
+      <div className={`flex-1 flex min-h-0 pb-4 mx-auto w-full px-4 sm:px-6 lg:px-8 gap-6 ${isComplete ? "max-w-[1400px]" : "justify-center max-w-4xl"}`}>
+        <div className="flex-1 rounded-3xl border-2 border-border bg-primary-100 flex flex-col overflow-hidden relative shadow-lg min-w-0">
           <ChatMessages
             turns={turns}
             isProcessing={isProcessing}
@@ -149,6 +152,37 @@ export default function ActiveSessionView({
             />
           )}
         </div>
+
+        {/* Right Column: Overall Scores when Complete */}
+        {isComplete && assessmentData && (
+          <div className="w-[450px] shrink-0 flex flex-col gap-6 overflow-y-auto scrollbar-none pr-2">
+            <PronunciationAssessmentReview
+              data={assessmentData}
+              mode={sessionMode}
+              language={language}
+              onBack={() => {}}
+              onRetry={onRetry}
+              isEmbedded={true}
+              hideTurns={true}
+            />
+            
+            <div className="flex flex-col gap-3 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm mt-auto mb-8">
+              {backUrl && (
+                <Link href={backUrl} className="w-full">
+                  <Button variant="outline" className="w-full h-12 rounded-xl border-2 border-indigo-100 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 font-bold transition-all duration-300">
+                    Back to Topics
+                  </Button>
+                </Link>
+              )}
+              <Button 
+                onClick={onRetry}
+                className="w-full h-12 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold shadow-md shadow-indigo-200 transition-all duration-300 transform hover:scale-[1.02] active:scale-95"
+              >
+                Try Again
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -298,6 +332,7 @@ function ChatMessages({
   sessionMode,
   language,
   onRetry,
+  backUrl,
 }: {
   turns: Turn[];
   isProcessing: boolean;
@@ -321,38 +356,11 @@ function ChatMessages({
           key={turn.id}
           turn={turn}
           onSpeakText={onSpeakText}
+          isComplete={isComplete}
         />
       ))}
       {isProcessing && <TypingIndicator t={t} />}
 
-      {isComplete && assessmentData && (
-        <div className="mt-8 pt-8 border-t border-border/40 space-y-10">
-          <PronunciationAssessmentReview
-            data={assessmentData}
-            mode={sessionMode}
-            language={language}
-            onBack={() => {}} // Not used in this context
-            onRetry={onRetry}
-            isEmbedded={true}
-          />
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pb-12">
-            {backUrl && (
-              <Link href={backUrl} className="w-full sm:w-auto">
-                <Button variant="outline" className="w-full sm:w-48 h-12 rounded-2xl border-2 border-indigo-100 text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 font-bold transition-all duration-300">
-                  Quay về chủ đề
-                </Button>
-              </Link>
-            )}
-            <Button 
-              onClick={onRetry}
-              className="w-full sm:w-48 h-12 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold shadow-lg shadow-indigo-200 transition-all duration-300 transform hover:scale-105 active:scale-95"
-            >
-              Thử lại
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -360,9 +368,11 @@ function ChatMessages({
 function MessageBubble({
   turn,
   onSpeakText,
+  isComplete,
 }: {
   turn: Turn;
   onSpeakText: (text: string) => void;
+  isComplete?: boolean;
 }) {
   const isUser = turn.role === "user";
   return (
@@ -398,7 +408,7 @@ function MessageBubble({
             </button>
           </div>
 
-          {/* Correction hint nudge */}
+          {/* Correction hint nudge (Tutor only) */}
           {!isUser && turn.correctionHint && (
             <div className="mt-1.5 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200/60 w-fit motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-1 motion-safe:duration-300">
               <Pencil className="h-3 w-3 text-amber-500 shrink-0" />
@@ -406,11 +416,58 @@ function MessageBubble({
             </div>
           )}
 
-          {/* Relevance hint nudge */}
-          {isUser && turn.relevanceHint && (
-            <div className="mt-1.5 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200/60 w-fit motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-1 motion-safe:duration-300">
-              <Lightbulb className="h-3 w-3 text-amber-500 shrink-0" />
-              <span className="text-xs text-amber-700 font-medium">{turn.relevanceHint}</span>
+          {/* Detailed User Turn Analysis Card */}
+          {isComplete && isUser && (turn.wordAssessments || turn.relevanceHint || turn.pronunciationScores) && (
+            <div className="mt-2 bg-slate-50/80 backdrop-blur-sm rounded-xl p-3 border border-slate-200 shadow-sm w-full flex items-start gap-4 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-300">
+              <div className="flex-1 flex flex-col gap-3 min-w-0">
+                
+                {/* Context Relevance */}
+                <div className="flex flex-col gap-1.5">
+                  <div className="text-[13px] font-bold flex items-center gap-1.5">
+                    <Lightbulb className="h-4 w-4 text-amber-500" /> 
+                    <span className="text-slate-700">Context Relevance:</span>
+                    {turn.relevanceHint ? (
+                      <span className="text-red-500 bg-red-50 px-1.5 py-0.5 rounded-md border border-red-100 text-[11px] uppercase tracking-wider">Not suitable</span>
+                    ) : (
+                      <span className="text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md border border-emerald-100 text-[11px] uppercase tracking-wider">Good</span>
+                    )}
+                  </div>
+                  {turn.relevanceHint && (
+                    <div className="text-[13px] text-slate-700 bg-amber-50/80 p-2.5 rounded-lg border border-amber-200/60 leading-relaxed">
+                      {turn.relevanceHint}
+                    </div>
+                  )}
+                </div>
+
+                {/* Pronunciation */}
+                {turn.wordAssessments && turn.wordAssessments.length > 0 && (
+                  <div className="flex flex-col gap-2 border-t border-slate-200/80 pt-2.5">
+                    <div className="text-[13px] font-bold flex items-center gap-1.5 text-slate-700">
+                      <Mic className="h-4 w-4 text-indigo-500" /> 
+                      Pronunciation
+                    </div>
+                    <div className="text-[14px] text-slate-700 leading-loose flex flex-wrap gap-x-1.5 gap-y-1">
+                      {turn.wordAssessments.map((w, i) => (
+                        <span key={i} className={w.errorType !== "None" ? "text-red-600 bg-red-100 px-1.5 py-0.5 rounded-md border-b-2 border-red-300 font-bold shadow-sm" : "text-slate-700"}>
+                          {w.word}
+                        </span>
+                      ))}
+                    </div>
+                    {turn.wordAssessments.filter(w => w.errorType !== "None").map((w, i) => {
+                      const correctPhonemes = w.phonemes?.map(p => p.phoneme).join("") || "";
+                      return (
+                        <div key={i} className="text-[13px] text-slate-600 mt-0.5 bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm flex items-start gap-2">
+                          <span className="shrink-0 text-red-500 mt-0.5">⚠️</span>
+                          <span>
+                            You should pronounce the word <strong className="text-red-600 font-bold px-1 bg-red-50 rounded">"{w.word}"</strong> as {correctPhonemes ? <span className="font-mono text-indigo-600 font-bold tracking-widest px-1.5 py-0.5 bg-indigo-50 rounded border border-indigo-100">/{correctPhonemes}/</span> : "correctly"}.
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
             </div>
           )}
         </div>

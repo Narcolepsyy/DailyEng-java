@@ -39,6 +39,7 @@ export default function VocabPageClient({ userId }: VocabPageClientProps) {
           description="Expand your vocabulary with structured topics and interactive flashcards."
           imageSrc="/hero-vocabulary.jpg"
           primaryAction={{ label: "Choose Learning Topic", href: "#topics" }}
+          secondaryAction={{ label: "Daily Review", href: "/vocabulary-hub/daily-review" }}
           notification={{
             text: "Overview: 7 Topic Groups • 140+ Vocabulary Topics",
           }}

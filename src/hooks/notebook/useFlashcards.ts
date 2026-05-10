@@ -67,6 +67,9 @@ export function useFlashcards({
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (sessionCompleteOpen || currentCollectionType === "grammar") return
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || (e.target as HTMLElement).isContentEditable) {
+          return;
+      }
       if (e.code === "Space" || e.code === "ArrowUp" || e.code === "ArrowDown") {
         e.preventDefault()
         setIsFlipped(prev => !prev)

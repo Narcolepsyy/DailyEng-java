@@ -142,7 +142,7 @@ public class AzureVisionService {
 
                         // Create merged paragraph block with combined bounding box
                         if (!blockLineTexts.isEmpty()) {
-                            var mergedText = String.join(" ", blockLineTexts);
+                            var mergedText = String.join("\n", blockLineTexts);
                             var combinedPolygon = List.of(
                                     new double[]{blockMinX, blockMinY},
                                     new double[]{blockMaxX, blockMinY},

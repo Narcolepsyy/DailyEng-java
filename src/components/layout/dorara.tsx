@@ -20,6 +20,8 @@ import {
   Notebook,
   Zap,
   ArrowRight,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import type { DoraraChatMessage } from "@/actions/dorara";
@@ -98,6 +100,7 @@ export function Dorara() {
   const [input, setInput] = useState("");
   const [showLimitWarning, setShowLimitWarning] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const { streamedText, isStreaming, streamMessage } = useDoraraStream();
 
   const langStr = learningLanguage === "ja" ? "Japanese" : "English";
@@ -156,6 +159,18 @@ export function Dorara() {
   useEffect(() => {
     if (doraraOpen) setTimeout(() => inputRef.current?.focus(), 300);
   }, [doraraOpen]);
+
+  // Lock body scroll when expanded so mouse wheel goes to Dorara, not the page
+  useEffect(() => {
+    if (isExpanded) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isExpanded]);
 
   if (!isAuthenticated) return null;
 
@@ -227,20 +242,29 @@ export function Dorara() {
 
       {/* ── Chat Panel ────────────────────────────────────────────── */}
       {doraraOpen && (
+        <>
+          {/* Fullscreen backdrop */}
+          {isExpanded && (
+            <div
+              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+              onClick={() => setIsExpanded(false)}
+            />
+          )}
         <div
-          className="
-            fixed bottom-6 right-6 z-50
-            w-[420px] max-w-[calc(100vw-32px)]
-            rounded-2xl
+          className={`
+            fixed z-50
             bg-white/95
             backdrop-blur-xl
             border border-primary-200/50
-            shadow-[0_8px_40px_rgba(79,70,229,0.12),0_2px_8px_rgba(0,0,0,0.04)]
             flex flex-col
-            h-[600px]
             overflow-hidden
-            animate-in fade-in slide-in-from-bottom-3 duration-200
-          "
+            transition-all duration-300 ease-in-out
+            ${
+              isExpanded
+                ? "inset-4 rounded-2xl shadow-[0_24px_80px_rgba(79,70,229,0.25),0_8px_32px_rgba(0,0,0,0.12)]"
+                : "bottom-6 right-6 w-[420px] max-w-[calc(100vw-32px)] h-[600px] rounded-2xl shadow-[0_8px_40px_rgba(79,70,229,0.12),0_2px_8px_rgba(0,0,0,0.04)] animate-in fade-in slide-in-from-bottom-3 duration-200"
+            }
+          `}
         >
           {/* ── Header ──────────────────────────────────────────── */}
           <div className="relative overflow-hidden">
@@ -288,7 +312,17 @@ export function Dorara() {
                     <RotateCcw className="h-3.5 w-3.5" />
                   </button>
                   <button
-                    onClick={() => setDoraraOpen(false)}
+                    onClick={() => setIsExpanded((prev) => !prev)}
+                    className="h-8 w-8 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all duration-200 cursor-pointer"
+                    aria-label={isExpanded ? "Thu nhỏ" : "Mở rộng toàn màn hình"}
+                    title={isExpanded ? "Thu nhỏ" : "Toàn màn hình"}
+                  >
+                    {isExpanded
+                      ? <Minimize2 className="h-3.5 w-3.5" />
+                      : <Maximize2 className="h-3.5 w-3.5" />}
+                  </button>
+                  <button
+                    onClick={() => { setDoraraOpen(false); setIsExpanded(false); }}
                     className="h-8 w-8 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all duration-200 cursor-pointer"
                     aria-label="Close chat"
                   >
@@ -470,6 +504,7 @@ export function Dorara() {
             </p>
           </div>
         </div>
+        </>
       )}
     </>
   );

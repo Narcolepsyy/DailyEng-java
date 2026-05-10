@@ -22,6 +22,7 @@ export function SmartLensTab() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [lines, setLines] = useState<SmartLensLine[]>([]);
+  const [lineColors, setLineColors] = useState<Record<number, { bg: string, text: string }>>({});
   const [detectedLang, setDetectedLang] = useState<string | null>(null);
   const [targetLang, setTargetLang] = useState<Language>(LANGUAGES[0]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -63,6 +64,86 @@ export function SmartLensTab() {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
+
+  useEffect(() => {
+    if (!imagePreview || lines.length === 0 || !imgRef.current) return;
+    
+    const img = imgRef.current;
+    if (!img.complete || img.naturalWidth === 0) return;
+
+    const extractColors = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) return;
+      
+      const newColors: Record<number, { bg: string, text: string }> = {};
+      
+      lines.forEach((line, idx) => {
+        if (!line.boundingPolygon || line.boundingPolygon.length < 4) {
+          newColors[idx] = { bg: 'rgba(255,255,255,0.95)', text: '#1a56db' };
+          return;
+        }
+        const xs = line.boundingPolygon.map(p => p.x);
+        const ys = line.boundingPolygon.map(p => p.y);
+        const x = Math.max(0, Math.min(...xs));
+        const y = Math.max(0, Math.min(...ys));
+        const w = Math.min(img.naturalWidth - x, Math.max(...xs) - x);
+        const h = Math.min(img.naturalHeight - y, Math.max(...ys) - y);
+        
+        if (w <= 0 || h <= 0) {
+          newColors[idx] = { bg: 'rgba(255,255,255,0.95)', text: '#1a56db' };
+          return;
+        }
+
+        canvas.width = w;
+        canvas.height = h;
+        ctx.drawImage(img, x, y, w, h, 0, 0, w, h);
+        
+        try {
+            const imageData = ctx.getImageData(0, 0, w, h).data;
+            let rSum = 0, gSum = 0, bSum = 0;
+            let edgePixels = 0;
+            for (let i = 0; i < w; i++) {
+               let idx = (i) * 4; rSum+=imageData[idx]; gSum+=imageData[idx+1]; bSum+=imageData[idx+2]; edgePixels++;
+               idx = ((h-1)*w + i) * 4; rSum+=imageData[idx]; gSum+=imageData[idx+1]; bSum+=imageData[idx+2]; edgePixels++;
+            }
+            for (let j = 0; j < h; j++) {
+               let idx = (j*w) * 4; rSum+=imageData[idx]; gSum+=imageData[idx+1]; bSum+=imageData[idx+2]; edgePixels++;
+               idx = (j*w + w-1) * 4; rSum+=imageData[idx]; gSum+=imageData[idx+1]; bSum+=imageData[idx+2]; edgePixels++;
+            }
+            
+            const bgR = Math.round(rSum / edgePixels);
+            const bgG = Math.round(gSum / edgePixels);
+            const bgB = Math.round(bSum / edgePixels);
+            const bgLuma = 0.2126 * bgR + 0.7152 * bgG + 0.0722 * bgB;
+            
+            let maxDist = -1;
+            let textR = bgLuma > 128 ? 0 : 255;
+            let textG = textR, textB = textR;
+
+            const step = Math.max(1, Math.floor(imageData.length / 4 / 500));
+            for (let i = 0; i < imageData.length; i += 4 * step) {
+               const r = imageData[i], g = imageData[i+1], b = imageData[i+2];
+               const dist = Math.abs(r-bgR) + Math.abs(g-bgG) + Math.abs(b-bgB);
+               if (dist > maxDist && dist > 40) {
+                   maxDist = dist;
+                   textR = r; textG = g; textB = b;
+               }
+            }
+
+            newColors[idx] = { 
+                bg: `rgba(${bgR}, ${bgG}, ${bgB}, 0.95)`, 
+                text: `rgb(${textR}, ${textG}, ${textB})` 
+            };
+        } catch(e) {
+            newColors[idx] = { bg: 'rgba(255,255,255,0.95)', text: '#1a56db' };
+        }
+      });
+      setLineColors(newColors);
+    };
+
+    extractColors();
+  }, [lines, imagePreview]);
 
   useEffect(() => { return () => stopCamera(); }, []);
   useEffect(() => { if (mode === "upload") stopCamera(); }, [mode]);
@@ -280,11 +361,16 @@ export function SmartLensTab() {
                     const top = Math.min(...ys) * scaleY;
                     const width = (Math.max(...xs) - Math.min(...xs)) * scaleX;
                     const height = (Math.max(...ys) - Math.min(...ys)) * scaleY;
-                    const fontSize = Math.max(7, Math.min(height * 0.65, 18));
+                    const area = width * height;
+                    const textLen = line.translated.length || 1;
+                    const estimatedFontSize = Math.sqrt(area / (textLen * 1.2));
+                    const fontSize = Math.max(10, Math.min(estimatedFontSize, height * 0.85, 48));
+                    const colors = lineColors[idx] || { bg: 'rgba(255,255,255,0.95)', text: '#1a56db' };
+
                     return (
-                      <motion.div key={idx} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: idx * 0.03 }} className="absolute flex items-start" style={{ left: `${left}px`, top: `${top}px`, width: `${width}px`, minHeight: `${height}px`, padding: "1px 2px" }}>
-                        <div className="absolute inset-0 backdrop-blur-[1px]" style={{ backgroundColor: "rgba(255,255,255,0.92)" }} />
-                        <span className="relative z-10 font-semibold leading-tight w-full" style={{ fontSize: `${fontSize}px`, color: "#1a56db", lineHeight: 1.2, wordBreak: "break-word" }}>{line.translated}</span>
+                      <motion.div key={idx} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: idx * 0.03 }} className="absolute flex items-center justify-center overflow-hidden rounded-[4px]" style={{ left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px`, padding: "4px" }}>
+                        <div className="absolute inset-0 backdrop-blur-[2px]" style={{ backgroundColor: colors.bg }} />
+                        <span className="relative z-10 font-bold text-center flex items-center justify-center w-full h-full" style={{ fontSize: `${fontSize}px`, color: colors.text, lineHeight: 1.4, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{line.translated}</span>
                       </motion.div>
                     );
                   })}

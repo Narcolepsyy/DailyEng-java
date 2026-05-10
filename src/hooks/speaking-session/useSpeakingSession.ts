@@ -41,7 +41,7 @@ export function useSpeakingSession(props: SpeakingSessionClientProps) {
   // Derive back URL
   const fromParam = searchParams.get("from");
   const backUrl =
-    fromParam === "history" ? "/speaking?tab=history" : "/speaking";
+    fromParam === "history" ? "/speaking-room?tab=history" : "/speaking-room";
 
   // ─── Core state ─────────────────────────────────────
   const [turns, setTurns] = useState<Turn[]>(

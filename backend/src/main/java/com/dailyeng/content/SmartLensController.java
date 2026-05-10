@@ -77,35 +77,35 @@ public class SmartLensController {
             String fullText = ocrResult.fullText();
             TranslationResult fullTranslation = translatorService.translate(fullText, null, to);
 
-            // Step 3: Batch-translate paragraph blocks (lines merged within each Azure block)
-            // This ensures words split across visual lines are translated as complete sentences
-            var blockTexts = ocrResult.textBlocks().stream()
-                    .map(TextBlock::text)
+            // Step 3: Batch-translate individual lines to preserve exact coloring and positioning
+            // This ensures every visual line gets its own AR overlay box exactly where it was
+            var lineTexts = ocrResult.lines().stream()
+                    .map(AzureVisionService.TextLine::text)
                     .toList();
-            var translatedBlockTexts = translatorService.translateBatch(blockTexts, null, to);
+            var translatedLineTexts = translatorService.translateBatch(lineTexts, null, to);
 
-            // Step 4: Build response with paragraph-level translations
-            var translatedBlocks = new ArrayList<Map<String, Object>>();
-            for (int i = 0; i < ocrResult.textBlocks().size(); i++) {
-                TextBlock block = ocrResult.textBlocks().get(i);
-                String translatedBlock = i < translatedBlockTexts.size() ? translatedBlockTexts.get(i) : "";
+            // Step 4: Build response with line-level translations
+            var translatedLines = new ArrayList<Map<String, Object>>();
+            for (int i = 0; i < ocrResult.lines().size(); i++) {
+                AzureVisionService.TextLine line = ocrResult.lines().get(i);
+                String translatedLine = i < translatedLineTexts.size() ? translatedLineTexts.get(i) : "";
 
-                var blockMap = Map.<String, Object>of(
-                        "original", block.text(),
-                        "translated", translatedBlock,
-                        "lineCount", block.lineCount(),
-                        "boundingPolygon", block.boundingPolygon().stream()
+                var lineMap = Map.<String, Object>of(
+                        "original", line.text(),
+                        "translated", translatedLine,
+                        "lineCount", 1,
+                        "boundingPolygon", line.boundingPolygon().stream()
                                 .map(p -> Map.of("x", p[0], "y", p[1]))
                                 .toList()
                 );
-                translatedBlocks.add(blockMap);
+                translatedLines.add(lineMap);
             }
 
-            log.info("🔍 SmartLens: {} blocks extracted and translated to '{}'",
-                    translatedBlocks.size(), to);
+            log.info("🔍 SmartLens: {} lines extracted and translated to '{}'",
+                    translatedLines.size(), to);
 
             return ResponseEntity.ok(Map.of(
-                    "lines", translatedBlocks,
+                    "lines", translatedLines,
                     "fullText", fullText,
                     "translatedFullText", fullTranslation.translatedText(),
                     "detectedLanguage", fullTranslation.detectedLanguage() != null

@@ -55,7 +55,7 @@ export function useNotebookData({
       })
 
       // Fetch items for each vocabulary notebook
-      const vocabNotebooks = notebooks.filter(nb => nb.type === "vocabulary")
+      const vocabNotebooks = notebooks.filter(nb => nb.type.toLowerCase() === "vocabulary")
       const allItems: NotebookItem[] = []
       for (const nb of vocabNotebooks) {
         const items = await getNotebookItems(nb.id)
@@ -77,7 +77,36 @@ export function useNotebookData({
         })))
       }
       if (allItems.length > 0) {
-        setVocabularyItems(prev => [...prev, ...allItems])
+        setVocabularyItems(prev => {
+          const existingIds = new Set(prev.map(i => i.id))
+          const newItems = allItems.filter(i => !existingIds.has(i.id))
+          return [...prev, ...newItems]
+        })
+      }
+
+      // Fetch items for each grammar notebook
+      const grammarNotebooks = notebooks.filter(nb => nb.type.toLowerCase() === "grammar")
+      const allGrammarItems: GrammarItem[] = []
+      for (const nb of grammarNotebooks) {
+        const items = await getNotebookItems(nb.id)
+        allGrammarItems.push(...items.map(item => ({
+          id: item.id,
+          title: item.word,
+          rule: item.meaning && item.meaning.length > 0 ? item.meaning[0] : "",
+          explanation: item.meaning && item.meaning.length > 0 ? item.meaning[0] : "",
+          category: item.tags && item.tags.length > 0 ? item.tags[0] : "Grammar",
+          level: item.level || "A1",
+          examples: item.examples,
+          collectionId: item.notebookId,
+          masteryLevel: item.masteryLevel,
+        })))
+      }
+      if (allGrammarItems.length > 0) {
+        setGrammarItems(prev => {
+          const existingIds = new Set(prev.map(i => i.id))
+          const newItems = allGrammarItems.filter(i => !existingIds.has(i.id))
+          return [...prev, ...newItems]
+        })
       }
     }).catch(err => {
       console.warn("[useNotebookData] Failed to fetch notebooks:", err)

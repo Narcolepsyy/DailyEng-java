@@ -22,6 +22,8 @@ import {
   markNotificationsAsRead,
   type NotificationResult,
 } from "@/actions/notification";
+import { getDueItems } from "@/actions/srs";
+import { useRouter } from "next/navigation";
 
 // Icon mapping for notification types
 const typeIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -84,6 +86,8 @@ export function NotificationDropdown() {
   const markReadTimerRef = useRef<NodeJS.Timeout | null>(null);
   const dropdownContentRef = useRef<HTMLDivElement | null>(null);
 
+  const router = useRouter();
+
   // Fetch notifications when dropdown opens for the first time
   const handleOpenChange = async (open: boolean) => {
     setIsOpen(open);
@@ -96,7 +100,16 @@ export function NotificationDropdown() {
           limit: 10,
           sortOrder: "newest",
         });
-        setNotifications(result.notifications);
+
+        // Tự động gán URL cho notification nếu title là "Daily Review"
+        const notifs = result.notifications.map(n => {
+          if (n.title === "Daily Review") {
+            return { ...n, url: "/vocabulary-hub/daily-review" };
+          }
+          return n;
+        });
+
+        setNotifications(notifs);
       } finally {
         setIsLoading(false);
       }
@@ -212,8 +225,17 @@ export function NotificationDropdown() {
                     ref={notificationItemRef}
                     data-notification-id={notification.id}
                     data-is-read={isRead.toString()}
+                    onClick={() => {
+                      const extendedNotif = notification as NotificationResult & { url?: string };
+                      if (extendedNotif.url) {
+                        setIsOpen(false);
+                        router.push(extendedNotif.url);
+                      }
+                    }}
                     className={`flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${
                       !isRead ? "bg-primary/5" : ""
+                    } ${
+                      (notification as any).url ? "cursor-pointer" : ""
                     }`}
                   >
                     {/* Icon */}

@@ -430,7 +430,7 @@ export default function TranslatePage() {
                   charCount > MAX_CHARS * 0.9 ? "text-amber-500" : "text-gray-300"
                 }`}
               >
-                {charCount.toLocaleString()} / {MAX_CHARS.toLocaleString()}
+                {charCount.toLocaleString("en-US")} / {MAX_CHARS.toLocaleString("en-US")}
               </span>
             </div>
           </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -21,39 +22,81 @@ interface PracticeItem {
     difficulty?: "easy" | "medium" | "hard"
 }
 
-// Default fixed questions for Grammar
+// Default fixed questions for Grammar (Future with Will)
 const FIXED_WRITING_QUESTIONS: PracticeItem[] = [
-    { id: "gw1", context: "Dịch: 'Tôi đã sống ở đây được 5 năm' (Present Perfect)", target: "I have lived here for 5 years", type: "writing" },
-    { id: "gw2", context: "Dịch: 'Nếu trời mưa, tôi sẽ ở nhà' (First Conditional)", target: "If it rains, I will stay at home", type: "writing" },
-    { id: "gw3", context: "Dịch: 'Cuốn sách này được viết bởi cô ấy' (Passive Voice)", target: "This book was written by her", type: "writing" }
+    { id: "gw1", context: "Dịch: 'Tôi sẽ giúp bạn' (Easy)", target: "I will help you", type: "writing", difficulty: "easy" },
+    { id: "gw2", context: "Dịch: 'Cô ấy sẽ không đến bữa tiệc' (Easy)", target: "She will not come to the party", type: "writing", difficulty: "easy" },
+    { id: "gw3", context: "Dịch: 'Họ sẽ mua một chiếc xe hơi mới vào năm sau' (Medium)", target: "They will buy a new car next year", type: "writing", difficulty: "medium" },
+    { id: "gw4", context: "Dịch: 'Bạn sẽ đi du lịch ở đâu vào mùa hè này?' (Medium)", target: "Where will you travel this summer?", type: "writing", difficulty: "medium" },
+    { id: "gw5", context: "Dịch: 'Tôi nghĩ rằng trí tuệ nhân tạo sẽ thay đổi thế giới trong tương lai' (Hard)", target: "I think that artificial intelligence will change the world in the future", type: "writing", difficulty: "hard" }
 ]
 
 const FIXED_SPEAKING_QUESTIONS: PracticeItem[] = [
-    { id: "gs1", context: "Nói: 'Bạn có thích pizza không?' (Present Simple)", target: "Do you like pizza?", type: "speaking" },
-    { id: "gs2", context: "Nói: 'Họ đang chơi bóng đá' (Present Continuous)", target: "They are playing football", type: "speaking" },
-    { id: "gs3", context: "Nói: 'Tôi sẽ đi học vào ngày mai' (Future Simple)", target: "I will go to school tomorrow", type: "speaking" }
+    { id: "gs1", context: "Nói: 'Tôi sẽ gọi cho bạn sau' (Easy)", target: "I will call you later", type: "speaking", difficulty: "easy" },
+    { id: "gs2", context: "Nói: 'Trời sẽ mưa vào ngày mai chứ?' (Medium)", target: "Will it rain tomorrow?", type: "speaking", difficulty: "medium" },
+    { id: "gs3", context: "Nói: 'Mọi thứ sẽ ổn thôi, đừng lo lắng' (Medium)", target: "Everything will be fine, do not worry", type: "speaking", difficulty: "medium" }
 ]
 
-// Mock generator for Grammar Practice
-const generateMoreQuestions = (difficulty: "easy" | "medium" | "hard", type: "writing" | "speaking"): PracticeItem => {
-    const templates = [
-        { context: `[${difficulty}] Dịch: 'Tôi không biết bơi' (Can/Cannot)`, target: "I cannot swim", type },
-        { context: `[${difficulty}] Dịch: 'Cô ấy đang ngủ' (Present Continuous)`, target: "She is sleeping", type }
-    ]
-    return {
-        ...templates[Math.floor(Math.random() * templates.length)],
-        type,
-        id: Math.random().toString(),
-        difficulty
+
+
+// Levenshtein Distance Algorithm for String Similarity
+function calculateSimilarity(s1: string, s2: string): number {
+    if (s1 === s2) return 100;
+    if (s1.length === 0 || s2.length === 0) return 0;
+
+    const matrix = [];
+    for (let i = 0; i <= s2.length; i++) {
+        matrix[i] = [i];
     }
+    for (let j = 0; j <= s1.length; j++) {
+        matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= s2.length; i++) {
+        for (let j = 1; j <= s1.length; j++) {
+            if (s2.charAt(i - 1) === s1.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1, // substitution
+                    Math.min(
+                        matrix[i][j - 1] + 1, // insertion
+                        matrix[i - 1][j] + 1 // deletion
+                    )
+                );
+            }
+        }
+    }
+
+    const distance = matrix[s2.length][s1.length];
+    const maxLength = Math.max(s1.length, s2.length);
+    const similarity = ((maxLength - distance) / maxLength) * 100;
+    return Math.round(similarity);
 }
 
-export function GrammarPracticeMode() {
+interface GrammarPracticeModeProps {
+    items?: any[]
+}
+
+export function GrammarPracticeMode({ items }: GrammarPracticeModeProps) {
+    const router = useRouter()
     const [mode, setMode] = useState<"writing" | "speaking">("writing")
 
+    // Map DB items to PracticeItem format if available
+    const dbQuestions: PracticeItem[] = (items && items.length > 0) ? items.map(q => ({
+        id: q.id,
+        context: q.question,
+        target: q.correctAnswer,
+        type: "writing" // Assume writing/fill-in for grammar quiz items for now
+    })) : []
+
     // Separate state for each mode
-    const [writingQuestions, setWritingQuestions] = useState<PracticeItem[]>(FIXED_WRITING_QUESTIONS)
-    const [speakingQuestions, setSpeakingQuestions] = useState<PracticeItem[]>(FIXED_SPEAKING_QUESTIONS)
+    const [writingQuestions, setWritingQuestions] = useState<PracticeItem[]>(
+        dbQuestions.length > 0 ? dbQuestions : FIXED_WRITING_QUESTIONS
+    )
+    const [speakingQuestions, setSpeakingQuestions] = useState<PracticeItem[]>(
+        dbQuestions.length > 0 ? dbQuestions : FIXED_SPEAKING_QUESTIONS
+    )
 
     const [currentIndexes, setCurrentIndexes] = useState({ writing: 0, speaking: 0 })
 
@@ -79,15 +122,30 @@ export function GrammarPracticeMode() {
 
         setIsProcessing(true)
         setTimeout(() => {
-            // Mock Grading Logic
-            const score = Math.random() > 0.5 ? 90 : 65
+            // Levenshtein Similarity Grading Logic
+            const normalizedUser = userAnswer.trim().toLowerCase().replace(/[.,!?]/g, "").replace(/\s+/g, " ");
+            const normalizedTarget = currentQuestion.target.trim().toLowerCase().replace(/[.,!?]/g, "").replace(/\s+/g, " ");
+            
+            const score = calculateSimilarity(normalizedUser, normalizedTarget);
+            
+            let comment = "";
+            if (score === 100) {
+                comment = "Perfect grammar usage!";
+            } else if (score >= 80) {
+                comment = `Almost perfect! Just a small typo. Expected: "${currentQuestion.target}"`;
+            } else if (score >= 50) {
+                comment = `Close! The correct grammar is: "${currentQuestion.target}"`;
+            } else {
+                comment = `Check your grammar. Expected: "${currentQuestion.target}"`;
+            }
+
             setFeedback({
                 score,
-                comment: score > 80 ? "Perfect grammar usage!" : `Check your grammar. Expected: "${currentQuestion.target}"`
+                comment
             })
             setHistory(prev => [...prev, { question: currentQuestion, score }])
             setIsProcessing(false)
-        }, 1500)
+        }, 800)
     }
 
     const handleNext = () => {
@@ -104,22 +162,15 @@ export function GrammarPracticeMode() {
         }
     }
 
-    const handleGenerateMore = (difficulty: "easy" | "medium" | "hard") => {
-        const newQ = generateMoreQuestions(difficulty, mode)
-        if (mode === "writing") {
-            setWritingQuestions(prev => [...prev, newQ])
-            if (isSummary) {
-                setIsSummary(false)
-                setCurrentIndexes(prev => ({ ...prev, writing: prev.writing + 1 }))
-            }
-        } else {
-            setSpeakingQuestions(prev => [...prev, newQ])
-            if (isSummary) {
-                setIsSummary(false)
-                setCurrentIndexes(prev => ({ ...prev, speaking: prev.speaking + 1 }))
-            }
-        }
+    const handleReviewAgain = () => {
+        setCurrentIndexes({ writing: 0, speaking: 0 })
+        setHistory([])
+        setFeedback(null)
+        setUserAnswer("")
+        setIsSummary(false)
     }
+
+
 
     if (isSummary) {
         const avgScore = Math.round(history.reduce((acc, curr) => acc + curr.score, 0) / history.length || 0)
@@ -150,21 +201,12 @@ export function GrammarPracticeMode() {
                     </div>
 
                     <div className="flex gap-3 justify-center pt-4">
-                        <Button variant="outline" onClick={() => setIsSummary(false)} className="gap-2">
-                            Review Answers
+                        <Button variant="outline" onClick={() => router.push("/grammar-hub")} className="gap-2">
+                            Other Grammar
                         </Button>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button className="gap-2 bg-primary-600 hover:bg-primary-700">
-                                    <Sparkles className="w-4 h-4" /> Practice More ({mode === "writing" ? "Writing" : "Speaking"})
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                <DropdownMenuItem onClick={() => handleGenerateMore("easy")}>Easy</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleGenerateMore("medium")}>Medium</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleGenerateMore("hard")}>Hard</DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        <Button className="gap-2 bg-primary-600 hover:bg-primary-700" onClick={handleReviewAgain}>
+                            <Sparkles className="w-4 h-4" /> Review Again
+                        </Button>
                     </div>
                 </Card>
             </div>
@@ -278,19 +320,7 @@ export function GrammarPracticeMode() {
                     )}
 
                     <div className="pt-4 flex items-center justify-between gap-4">
-                        {/* AI Generation for more questions */}
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="gap-2 text-slate-500 hover:text-primary-600">
-                                    <Sparkles className="w-4 h-4" /> Add More
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="start">
-                                <DropdownMenuItem onClick={() => handleGenerateMore("easy")}>Easy</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleGenerateMore("medium")}>Medium</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleGenerateMore("hard")}>Hard</DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div />
 
                         <div className="flex gap-2">
                             {!feedback ? (
