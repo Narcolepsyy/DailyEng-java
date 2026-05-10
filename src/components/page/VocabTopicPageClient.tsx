@@ -29,6 +29,7 @@ export default function VocabTopicPageClient({
   const router = useRouter();
   const [learningPhase, setLearningPhase] = useState<"study" | "practice">("study");
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [isComplete, setIsComplete] = useState(false);
 
   const [wordStatuses, setWordStatuses] = useState<Record<string, string>>({});
 
@@ -112,7 +113,10 @@ export default function VocabTopicPageClient({
                   {displayVocab.map((word, idx) => (
                     <button
                       key={word.id}
-                      onClick={() => setCurrentWordIndex(idx)}
+                      onClick={() => {
+                        setCurrentWordIndex(idx);
+                        setIsComplete(false);
+                      }}
                       className={`w-full text-left px-3 py-3 rounded-lg transition-all flex items-center justify-between group text-md ${idx === currentWordIndex
                         ? "bg-primary-50 text-primary-700 font-semibold ring-1 ring-primary-200"
                         : "hover:bg-slate-50 text-slate-600"
@@ -130,13 +134,50 @@ export default function VocabTopicPageClient({
 
               {/* Right: Flashcards */}
               <div className="md:col-span-8 lg:col-span-9 h-full flex flex-col">
-                <VocabFlashcardStack
-                  words={displayVocab}
-                  currentIndex={currentWordIndex}
-                  onIndexChange={setCurrentWordIndex}
-                  onRate={handleRate}
-                  onComplete={() => setLearningPhase("practice")}
-                />
+                {isComplete ? (
+                  <div className="flex-1 bg-white rounded-xl border-2 border-border shadow-sm flex flex-col items-center justify-center text-center p-8 space-y-6">
+                    <div className="h-24 w-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center text-5xl mb-2">
+                      🎓
+                    </div>
+                    <div className="space-y-2">
+                      <h2 className="text-2xl font-bold text-slate-800">
+                        Awesome! You have reviewed all the vocabulary for this topic.
+                      </h2>
+                      <p className="text-slate-500 max-w-md mx-auto text-lg">
+                        Ready to test your memory?
+                      </p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          setCurrentWordIndex(0);
+                          setIsComplete(false);
+                        }} 
+                        className="px-8 py-6 rounded-xl font-medium text-slate-700 hover:bg-slate-50 w-full sm:w-auto"
+                      >
+                        Review Again
+                      </Button>
+                      <Button 
+                        onClick={() => {
+                          setIsComplete(false);
+                          setLearningPhase("practice");
+                        }} 
+                        className="px-8 py-6 rounded-xl font-medium w-full sm:w-auto"
+                      >
+                        Start Practice
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <VocabFlashcardStack
+                    words={displayVocab}
+                    currentIndex={currentWordIndex}
+                    onIndexChange={setCurrentWordIndex}
+                    onRate={handleRate}
+                    onComplete={() => setIsComplete(true)}
+                  />
+                )}
               </div>
             </div>
           ) : (

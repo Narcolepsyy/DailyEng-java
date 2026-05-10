@@ -29,4 +29,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Stri
     Optional<Notification> findByIdAndUserId(String id, String userId);
 
     List<Notification> findByIdInAndUserId(List<String> ids, String userId);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("DELETE FROM Notification n WHERE n.title = :title")
+    void deleteByTitle(@Param("title") String title);
 }

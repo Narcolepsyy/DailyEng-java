@@ -156,8 +156,8 @@ public class GeminiService {
                 CRITICAL: Return ONLY a JSON object: {"response": "<your response>", "correctionHint": "<brief correction or null>", "relevanceHint": "<brief comment on how well the response fits the scenario or null>"}
                 
                 RELEVANCE HINT RULES:
-                - relevanceHint should be a brief, helpful comment in Vietnamese IF the user's response is off-topic or doesn't fit the context well.
-                - Example: "Bạn nên tập trung vào việc gọi món thay vì nói về thời tiết."
+                - relevanceHint should be a brief, helpful comment in English IF the user's response is off-topic or doesn't fit the context well.
+                - Example: "You should focus on ordering food instead of talking about the weather."
                 - If the response is perfectly relevant, return null.
                 
                 CORRECTION HINT RULES — BE VERY SELECTIVE:

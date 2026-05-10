@@ -7,6 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { RadarChart } from "@/components/speaking/radar-chart";
 
 // ============================== Types ==============================
 
@@ -176,6 +177,7 @@ export default function PronunciationAssessmentReview({
   onBack,
   onRetry,
   isEmbedded = false,
+  hideTurns = false,
 }: {
   data: AssessmentData;
   mode?: "scripted" | "unscripted";
@@ -183,6 +185,7 @@ export default function PronunciationAssessmentReview({
   onBack: () => void;
   onRetry: () => void;
   isEmbedded?: boolean;
+  hideTurns?: boolean;
 }) {
   const isJapanese = language === "ja";
   const [enabledErrors, setEnabledErrors] = useState<Record<string, boolean>>(
@@ -202,6 +205,15 @@ export default function PronunciationAssessmentReview({
     }
     return counts;
   }, [data.turns]);
+
+  const radarData = useMemo(() => [
+    { label: isJapanese ? "正確さ" : "Accuracy", value: data.accuracyScore, hint: isJapanese ? "各音の発音精度" : "How correctly each sound is pronounced" },
+    { label: isJapanese ? "流暢さ" : "Fluency", value: data.fluencyScore, hint: isJapanese ? "滑らかさと自然なペース" : "Smoothness and natural pace of speech" },
+    { label: isJapanese ? "韻律" : "Prosody", value: data.prosodyScore, hint: isJapanese ? "イントネーション、アクセント、リズム" : "Intonation, stress, and rhythm patterns" },
+    { label: isJapanese ? "文法" : "Grammar", value: data.grammarScore, hint: isJapanese ? "助詞・活用・敬語の正確さ" : "Correctness of sentence structure" },
+    { label: isJapanese ? "話題関連性" : "Topic", value: data.relevanceScore, hint: isJapanese ? "シナリオとの適合性" : "How well responses fit the scenario" },
+    { label: isJapanese ? "語彙" : "Vocabulary", value: data.vocabularyScore, hint: isJapanese ? "語彙の多様性と適切さ" : "Range and appropriateness of words used" },
+  ], [data, isJapanese]);
 
   // Show only error types that actually appear in the data (regardless of mode)
   const visibleErrorTypes = ALL_ERROR_TYPES;
@@ -241,7 +253,8 @@ export default function PronunciationAssessmentReview({
         )}
 
         {/* ═══════════ Assessment Panel ═══════════ */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm">
+        {!hideTurns && (
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_250px]">
 
             {/* ─── Left: Turns ─── */}
@@ -501,9 +514,19 @@ export default function PronunciationAssessmentReview({
             </div>
           </div>
         </div>
+        )}
+        {/* ═══════════ Criteria Radar Chart ═══════════ */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+          <h3 className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">
+            {isJapanese ? "評価基準スコア (Criteria Score)" : "Criteria Score"}
+          </h3>
+          <div className="w-full flex justify-center items-center h-64">
+            <RadarChart data={radarData} size={300} />
+          </div>
+        </div>
 
         {/* ═══════════ Score Cards ═══════════ */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className={isEmbedded ? "space-y-5" : "grid grid-cols-1 lg:grid-cols-2 gap-5"}>
           {/* Pronunciation Score */}
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
             <h3 className="text-xs font-bold text-slate-400 mb-5 uppercase tracking-widest">

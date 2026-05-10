@@ -6,8 +6,8 @@ import { ProtectedRoute } from "@/components/auth/protected-route"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Flame, BookOpen, ChevronLeft } from "lucide-react"
-import { GrammarFlashcardStack } from "@/components/learning/GrammarFlashcardStack"
 import { GrammarPracticeMode } from "@/components/learning/GrammarPracticeMode"
+import { GrammarTheoryViewer } from "@/components/learning/GrammarTheoryViewer"
 
 interface GrammarTopicPageClientProps {
   topicId: string
@@ -28,27 +28,6 @@ export default function GrammarTopicPageClient({
   const router = useRouter()
   const [learningPhase, setLearningPhase] = useState<"study" | "practice">("study")
   const [currentNoteIndex, setCurrentNoteIndex] = useState(0)
-
-  // Track status for each grammar point
-  const [noteStatuses, setNoteStatuses] = useState<Record<string, string>>({})
-
-  const handleRate = (noteId: string, rating: string) => {
-    setNoteStatuses(prev => ({
-      ...prev,
-      [noteId]: rating
-    }))
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "again": return "bg-red-500"
-      case "hard": return "bg-orange-500"
-      case "good": return "bg-yellow-500"
-      case "easy": return "bg-green-500"
-      case "master": return "bg-blue-500"
-      default: return "bg-slate-200"
-    }
-  }
 
   return (
     <ProtectedRoute>
@@ -80,7 +59,7 @@ export default function GrammarTopicPageClient({
                 onClick={() => setLearningPhase("study")}
                 className="gap-2"
               >
-                <BookOpen className="h-4 w-4" /> Learn
+                <BookOpen className="h-4 w-4" /> Theory
               </Button>
               <Button
                 variant={learningPhase === "practice" ? "default" : "outline"}
@@ -101,7 +80,7 @@ export default function GrammarTopicPageClient({
               {/* Left: Grammar Points List */}
               <div className="md:col-span-4 lg:col-span-3 bg-white rounded-xl border-2 border-border shadow-sm overflow-hidden flex flex-col h-full">
                 <div className="p-3 border-b border-border bg-slate-50 flex justify-between items-center">
-                  <h3 className="font-bold text-slate-700 text-lg">Grammar Points</h3>
+                  <h3 className="font-bold text-slate-700 text-lg">Table of Contents</h3>
                   <span className="text-[12px] bg-white px-2 py-0.5 rounded-full border border-border text-slate-500">{grammarNotes.length}</span>
                 </div>
                 <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
@@ -115,8 +94,7 @@ export default function GrammarTopicPageClient({
                         }`}
                     >
                       <div className="flex items-center gap-3 overflow-hidden">
-                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${noteStatuses[note.id] ? getStatusColor(noteStatuses[note.id]) : "bg-slate-200"}`} />
-                        <span className="truncate">{note.title}</span>
+                        <span className="truncate">{idx + 1}. {note.title}</span>
                       </div>
                       {idx === currentNoteIndex && <div className="w-1.5 h-1.5 rounded-full bg-primary-500 flex-shrink-0" />}
                     </button>
@@ -124,13 +102,12 @@ export default function GrammarTopicPageClient({
                 </div>
               </div>
 
-              {/* Right: Flashcards */}
+              {/* Right: Theory Viewer */}
               <div className="md:col-span-8 lg:col-span-9 h-full flex flex-col">
-                <GrammarFlashcardStack
+                <GrammarTheoryViewer
                   items={grammarNotes}
                   currentIndex={currentNoteIndex}
                   onIndexChange={setCurrentNoteIndex}
-                  onRate={handleRate}
                   onComplete={() => setLearningPhase("practice")}
                 />
               </div>

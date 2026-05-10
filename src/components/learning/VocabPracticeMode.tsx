@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -26,13 +27,27 @@ interface PracticeItem {
 const FIXED_WRITING_QUESTIONS: PracticeItem[] = [
     { id: "w1", context: "Bạn sẽ nói 'Tôi đang ăn tối' như thế nào?", target: "I am having dinner", type: "writing" },
     { id: "w2", context: "Dịch: 'Cô ấy đi làm bằng xe buýt'", target: "She goes to work by bus", type: "writing" },
-    { id: "w3", context: "Dịch: 'Tôi thích học tiếng Anh'", target: "I like learning English", type: "writing" }
+    { id: "w3", context: "Dịch: 'Tôi thích học tiếng Anh'", target: "I like learning English", type: "writing" },
+    { id: "w4", context: "Dịch: 'Ngôi nhà của tôi rất lớn'", target: "My house is very big", type: "writing", difficulty: "easy" },
+    { id: "w5", context: "Dịch: 'Làm ơn đóng cửa lại'", target: "Please close the door", type: "writing", difficulty: "easy" },
+    { id: "w6", context: "Dịch: 'Tôi cần dọn dẹp nhà bếp'", target: "I need to clean the kitchen", type: "writing", difficulty: "medium" },
+    { id: "w7", context: "Dịch: 'Có bốn cái ghế quanh bàn'", target: "There are four chairs around the table", type: "writing", difficulty: "medium" },
+    { id: "w8", context: "Dịch: 'Phòng tắm ở đâu?'", target: "Where is the bathroom?", type: "writing", difficulty: "easy" },
+    { id: "w9", context: "Dịch: 'Hãy mở cửa sổ ra cho thoáng'", target: "Let's open the window for some fresh air", type: "writing", difficulty: "hard" },
+    { id: "w10", context: "Dịch: 'Phòng ngủ của tôi có một cái giường lớn'", target: "My bedroom has a big bed", type: "writing", difficulty: "medium" }
 ]
 
 const FIXED_SPEAKING_QUESTIONS: PracticeItem[] = [
     { id: "s1", context: "Hỏi ai đó họ từ đâu đến", target: "Where are you from?", type: "speaking" },
     { id: "s2", context: "Nói rằng bạn rất thích món ăn này", target: "I really like this dish", type: "speaking" },
-    { id: "s3", context: "Giới thiệu tên của bạn", target: "My name is...", type: "speaking" }
+    { id: "s3", context: "Giới thiệu tên của bạn", target: "My name is...", type: "speaking" },
+    { id: "s4", context: "Nói: 'Chào mừng đến với nhà của tôi'", target: "Welcome to my house", type: "speaking", difficulty: "easy" },
+    { id: "s5", context: "Hỏi: 'Chìa khóa của tôi ở trên bàn phải không?'", target: "Are my keys on the table?", type: "speaking", difficulty: "medium" },
+    { id: "s6", context: "Nói: 'Tôi đang dọn dẹp phòng khách'", target: "I am cleaning the living room", type: "speaking", difficulty: "medium" },
+    { id: "s7", context: "Nói: 'Đừng quên khóa cửa'", target: "Do not forget to lock the door", type: "speaking", difficulty: "hard" },
+    { id: "s8", context: "Nói: 'Nhà bếp rất sạch sẽ'", target: "The kitchen is very clean", type: "speaking", difficulty: "easy" },
+    { id: "s9", context: "Hỏi: 'Tôi có thể dùng phòng tắm không?'", target: "Can I use the bathroom?", type: "speaking", difficulty: "medium" },
+    { id: "s10", context: "Nói: 'Nhìn ra ngoài cửa sổ kìa'", target: "Look out the window", type: "speaking", difficulty: "easy" }
 ]
 
 // Mock generator function
@@ -49,7 +64,43 @@ const generateMoreQuestions = (difficulty: "easy" | "medium" | "hard", type: "wr
     }
 }
 
+// Levenshtein Distance Algorithm for String Similarity
+function calculateSimilarity(s1: string, s2: string): number {
+    if (s1 === s2) return 100;
+    if (s1.length === 0 || s2.length === 0) return 0;
+
+    const matrix = [];
+    for (let i = 0; i <= s2.length; i++) {
+        matrix[i] = [i];
+    }
+    for (let j = 0; j <= s1.length; j++) {
+        matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= s2.length; i++) {
+        for (let j = 1; j <= s1.length; j++) {
+            if (s2.charAt(i - 1) === s1.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1, // substitution
+                    Math.min(
+                        matrix[i][j - 1] + 1, // insertion
+                        matrix[i - 1][j] + 1 // deletion
+                    )
+                );
+            }
+        }
+    }
+
+    const distance = matrix[s2.length][s1.length];
+    const maxLength = Math.max(s1.length, s2.length);
+    const similarity = ((maxLength - distance) / maxLength) * 100;
+    return Math.round(similarity);
+}
+
 export function VocabPracticeMode() {
+    const router = useRouter();
     const learningLanguage = useAppStore((state) => state.learningLanguage);
     const langStr = learningLanguage === "ja" ? "Japanese" : "English";
 
@@ -84,15 +135,27 @@ export function VocabPracticeMode() {
 
         setIsProcessing(true)
         setTimeout(() => {
-            // Mock AI Grading logic
-            const score = Math.random() > 0.5 ? 90 : 60
-            setFeedback({
-                score,
-                comment: score > 80 ? "Great job! Accurate translation." : `Close! A better way might be: "${currentQuestion.target}"`
-            })
+            // Basic matching logic (to replace mock random score)
+            const normalizedUser = userAnswer.trim().toLowerCase().replace(/[.,!?]/g, "").replace(/\s+/g, " ");
+            const normalizedTarget = currentQuestion.target.trim().toLowerCase().replace(/[.,!?]/g, "").replace(/\s+/g, " ");
+            
+            const score = calculateSimilarity(normalizedUser, normalizedTarget);
+            
+            let comment = "";
+            if (score === 100) {
+                comment = "Excellent! Perfect translation.";
+            } else if (score >= 80) {
+                comment = `Almost perfect! Just a small typo. Correct answer: "${currentQuestion.target}"`;
+            } else if (score >= 50) {
+                comment = `Close! A better way might be: "${currentQuestion.target}"`;
+            } else {
+                comment = `Keep trying! The correct answer is: "${currentQuestion.target}"`;
+            }
+
+            setFeedback({ score, comment })
             setHistory(prev => [...prev, { question: currentQuestion, score }])
             setIsProcessing(false)
-        }, 1500)
+        }, 800)
     }
 
     const handleNext = () => {
@@ -159,21 +222,21 @@ export function VocabPracticeMode() {
                     </div>
 
                     <div className="flex gap-3 justify-center pt-4">
-                        <Button variant="outline" onClick={() => setIsSummary(false)} className="gap-2">
-                            Review Answers
+                        <Button variant="outline" onClick={() => router.push('/vocabulary-hub')} className="gap-2 px-6">
+                            Other topic
                         </Button>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button className="gap-2 bg-primary-600 hover:bg-primary-700">
-                                    <Sparkles className="w-4 h-4" /> Practice More ({mode === "writing" ? "Writing" : "Speaking"})
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                <DropdownMenuItem onClick={() => handleGenerateMore("easy")}>Easy</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleGenerateMore("medium")}>Medium</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleGenerateMore("hard")}>Hard</DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        <Button 
+                            className="gap-2 bg-primary-600 hover:bg-primary-700 px-6"
+                            onClick={() => {
+                                setCurrentIndexes({ writing: 0, speaking: 0 });
+                                setHistory([]);
+                                setIsSummary(false);
+                                setUserAnswer("");
+                                setFeedback(null);
+                            }}
+                        >
+                            <RefreshCw className="w-4 h-4" /> Practice Again
+                        </Button>
                     </div>
                 </Card>
             </div>
