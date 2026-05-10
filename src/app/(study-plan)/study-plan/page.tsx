@@ -7,6 +7,10 @@ import type {
   StudyStats,
 } from "@/components/page/PlanPageClient";
 import { cookies } from "next/headers";
+import { Suspense } from "react";
+import Loading from "./loading";
+
+export const dynamic = 'force-dynamic';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 
@@ -167,9 +171,17 @@ function getFallbackData() {
   return { todayLessons, reminders, studyGoals, ieltsExam, stats };
 }
 
-// ─── Page ──────────────────────────────────────────────────────────────────
+// ─── Page Wrapper ──────────────────────────────────────────────────────────
 
-export default async function PlanPage() {
+export default function StudyPlanPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <PlanPageContent />
+    </Suspense>
+  );
+}
+
+async function PlanPageContent() {
   // Fetch from real backend
   const [plan, todayTasksApi, statsApi] = await Promise.all([
     fetchWithCookies<StudyPlanApiResponse>("/study/plan"),
