@@ -54,3 +54,6 @@
 ## 2024-05-03 - Prevent array allocation overhead in large list counts
 **Learning:** In Next.js client components processing large lists (like vocabulary items fetched from the server), calculating a count using `.filter(...).length` causes O(N) intermediate array allocation and significant GC overhead.
 **Action:** Always replace `.filter(...).length` with a single in-place `.reduce()` or `for` loop to prevent unnecessary Garbage Collection and memory allocations. Also always use `.getTime()` when comparing Dates inside these loops.
+## 2025-05-18 - Optimized Heatmap Iteration Logic
+**Learning:** React re-renders or utility logic executing multiple separate array iterations (e.g. `reduce()` then `filter().length` then `forEach()`) on the same dataset creates an easily-fixable performance bottleneck, unnecessarily raising O(k*N) time complexity and generating redundant array objects (`Object.values()` or `Object.keys()`).
+**Action:** Always refactor sequential iterations into a single O(N) loop to traverse the structure exactly once.
