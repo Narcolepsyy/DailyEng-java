@@ -4,6 +4,7 @@ import com.dailyeng.ai.GeminiService;
 import com.dailyeng.dorara.DoraraDtos.ChatRequest;
 import com.dailyeng.dorara.DoraraDtos.EnrichRequest;
 import com.dailyeng.dorara.DoraraDtos.EnrichResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class DoraraController {
     private final GeminiService geminiService;
 
     @PostMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter chatStream(@RequestBody ChatRequest request) {
+    public SseEmitter chatStream(@Valid @RequestBody ChatRequest request) {
 
         SseEmitter emitter = new SseEmitter(120_000L);
 
@@ -53,7 +54,7 @@ public class DoraraController {
      * Analyzes the AI response text and returns vocab highlights + a quiz question.
      */
     @PostMapping("/enrich")
-    public ResponseEntity<EnrichResponse> enrich(@RequestBody EnrichRequest request) {
+    public ResponseEntity<EnrichResponse> enrich(@Valid @RequestBody EnrichRequest request) {
         var result = geminiService.generateDoraraEnrich(
                 request.aiResponse(),
                 request.userMessage(),
