@@ -304,16 +304,19 @@ function ActivityHeatmap({ data }: { data: Record<string, number> }) {
 
   // ⚡ Bolt: Memoize expensive heatmap layout calculations to prevent recalculation on every tooltip hover
   const { totalLessons, activeDays, maxStreak, weeks, monthPositions } = useMemo(() => {
-    const totalLessons = Object.values(data).reduce((sum, count) => sum + count, 0);
-    const activeDays = Object.values(data).filter((count) => count > 0).length;
-
-    // Calculate max streak
     const sortedDates = Object.keys(data).sort();
+
+    // ⚡ Bolt: Consolidate stats calculation into a single O(N) loop to prevent redundant array traversals
+    let totalLessons = 0;
+    let activeDays = 0;
     let maxStreak = 0;
     let currentStreak = 0;
 
     sortedDates.forEach((date) => {
-      if (data[date] > 0) {
+      const count = data[date];
+      if (count > 0) {
+        totalLessons += count;
+        activeDays++;
         currentStreak++;
         maxStreak = Math.max(maxStreak, currentStreak);
       } else {
