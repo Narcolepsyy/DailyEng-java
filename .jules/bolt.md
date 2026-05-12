@@ -42,3 +42,6 @@
 ## 2025-03-03 - O(N) Array Aggregation
 **Learning:** React re-renders or utility logic executing multiple O(N) Array passes using `.filter().length` in sequence on the same dataset creates an easily-fixable performance bottleneck.
 **Action:** Always refactor sequential `.filter().length` aggregations into a single loop (e.g. `for` or `.reduce`) to traverse the array exactly once.
+## 2025-05-19 - [Optimized O(4*N) to O(N) in src/actions/vocab-graph.ts]
+**Learning:** Using multiple `.filter().length` calls to calculate different aggregations from the same dataset loops through the array multiple times, causing O(k*N) complexity. In environments processing large data collections (e.g. graph nodes), this increases execution time and GC pressure due to intermediate array allocation.
+**Action:** Consolidate multiple `.filter().length` calls into a single loop (e.g., `for`) that counts all aggregated values simultaneously in an O(N) pass, completely eliminating redundant traversals and short-lived array allocations.

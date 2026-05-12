@@ -249,6 +249,28 @@ export async function getVocabGraphData(options?: {
 
     // Stats
     const now = new Date();
+
+    // ⚡ Bolt: Calculate stats in a single O(N) pass to prevent multiple O(N) traversals
+    // and intermediate array allocations from repeated .filter() operations.
+    let masteredCount = 0;
+    let learningCount = 0;
+    let unseenCount = 0;
+    let dueForReviewCount = 0;
+
+    for (const n of nodes) {
+      if (n.masteryLevel >= 76) {
+        masteredCount++;
+      } else if (n.masteryLevel > 0) {
+        learningCount++;
+      } else if (n.masteryLevel === 0) {
+        unseenCount++;
+      }
+
+      if (n.nextReview && new Date(n.nextReview) <= now) {
+        dueForReviewCount++;
+      }
+    }
+
     return {
       nodes,
       edges,
@@ -259,14 +281,10 @@ export async function getVocabGraphData(options?: {
       })),
       stats: {
         totalWords: nodes.length,
-        mastered: nodes.filter((n) => n.masteryLevel >= 76).length,
-        learning: nodes.filter(
-          (n) => n.masteryLevel > 0 && n.masteryLevel < 76
-        ).length,
-        unseen: nodes.filter((n) => n.masteryLevel === 0).length,
-        dueForReview: nodes.filter(
-          (n) => n.nextReview && new Date(n.nextReview) <= now
-        ).length,
+        mastered: masteredCount,
+        learning: learningCount,
+        unseen: unseenCount,
+        dueForReview: dueForReviewCount,
       },
     };
   } catch {
