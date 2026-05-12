@@ -99,6 +99,7 @@ export function DetailedFeedback({
         <Button
           variant="outline"
           size="icon"
+          aria-label="Go back"
           onClick={onBack}
           className="rounded-full hover:bg-muted h-10 w-10 bg-white"
         >

@@ -170,6 +170,7 @@ export default function BuildPlanPageClient({ questions, allCourses }: BuildPlan
             <Button
               variant="ghost"
               size="icon"
+              aria-label="Exit study plan builder"
               className="rounded-full hover:bg-primary-100 cursor-pointer"
             >
               <X className="w-5 h-5" />
@@ -276,7 +277,7 @@ export default function BuildPlanPageClient({ questions, allCourses }: BuildPlan
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center justify-between">
               <Link href="/">
-                <Button variant="outline" className="gap-2 cursor-pointer bg-white hover:bg-primary-50">
+                <Button variant="outline" aria-label="Exit study plan builder" className="gap-2 cursor-pointer bg-white hover:bg-primary-50">
                   <ArrowLeft className="w-4 h-4" />
                   Exit
                 </Button>
