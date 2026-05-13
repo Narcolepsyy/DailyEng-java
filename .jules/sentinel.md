@@ -17,3 +17,8 @@
 **Vulnerability:** The Spring Boot API mapped large string query/form parameters (`targetLanguage`) and passed them directly to downstream services (Azure Speech / Translator) or resolution functions.
 **Learning:** Even internal helper functions mapping standard types (like language codes) can cause OutOfMemory errors, DoS attacks, or massive string allocation overheads if bad actors submit payloads with millions of characters to a REST controller that lacks length bounds.
 **Prevention:** Add hardcoded string `.length()` checks (e.g., `> 50`) inside the controller at the entry point, or apply standard Spring `@Size(max=...)` annotations to enforce bounds on every string input, regardless of how "harmless" the field seems.
+
+## 2026-04-18 - [IDOR] Missing Resource Ownership Check on Task Updates
+**Vulnerability:** The `toggleTaskCompletion` and `updateTaskTime` methods in `StudyPlanService` fetched `StudyTask` objects simply by their ID (`findTaskById`) and updated them, completely bypassing ownership verification. This allowed any authenticated user to modify tasks belonging to other users.
+**Learning:** In Spring Boot applications, fetching entities solely by ID and acting on them without validating the active user's ownership (often via associations, like `task.getPlan().getUserId()`) introduces Insecure Direct Object Reference (IDOR) and Observable Response Discrepancy vulnerabilities.
+**Prevention:** Push authorization checks to the database layer by implementing and calling repository methods that require both the resource ID and the owner ID (e.g., `findByIdAndUserId()`). This ensures resources are either retrieved securely or universally return a 404/NotFound exception for unauthorized access.

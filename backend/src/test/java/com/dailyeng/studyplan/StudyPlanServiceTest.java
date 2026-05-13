@@ -219,10 +219,10 @@ class StudyPlanServiceTest {
         @DisplayName("toggles task completion")
         void toggle() {
             var task = createTestTask(TASK_ID, TaskType.vocab, "Learn Words", false);
-            when(studyTaskRepository.findById(TASK_ID)).thenReturn(Optional.of(task));
+            when(studyTaskRepository.findByIdAndUserId(TASK_ID, USER_ID)).thenReturn(Optional.of(task));
             when(studyTaskRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-            var result = studyPlanService.toggleTaskCompletion(TASK_ID, new ToggleTaskRequest(true));
+            var result = studyPlanService.toggleTaskCompletion(USER_ID, TASK_ID, new ToggleTaskRequest(true));
 
             assertTrue(result.completed());
             verify(studyTaskRepository).save(task);
@@ -231,10 +231,33 @@ class StudyPlanServiceTest {
         @Test
         @DisplayName("throws when task not found")
         void notFound() {
-            when(studyTaskRepository.findById(TASK_ID)).thenReturn(Optional.empty());
+            when(studyTaskRepository.findByIdAndUserId(TASK_ID, USER_ID)).thenReturn(Optional.empty());
 
             assertThrows(ResourceNotFoundException.class,
-                    () -> studyPlanService.toggleTaskCompletion(TASK_ID, new ToggleTaskRequest(true)));
+                    () -> studyPlanService.toggleTaskCompletion(USER_ID, TASK_ID, new ToggleTaskRequest(true)));
+        }
+    }
+
+    // ========================================================================
+    // updateTaskTime
+    // ========================================================================
+
+    @Nested
+    @DisplayName("updateTaskTime")
+    class UpdateTaskTime {
+
+        @Test
+        @DisplayName("updates task time")
+        void updateTime() {
+            var task = createTestTask(TASK_ID, TaskType.vocab, "Learn Words", false);
+            when(studyTaskRepository.findByIdAndUserId(TASK_ID, USER_ID)).thenReturn(Optional.of(task));
+            when(studyTaskRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+            var result = studyPlanService.updateTaskTime(USER_ID, TASK_ID, new UpdateTaskTimeRequest("09:00", "10:00"));
+
+            assertEquals("09:00", result.startTime());
+            assertEquals("10:00", result.endTime());
+            verify(studyTaskRepository).save(task);
         }
     }
 
