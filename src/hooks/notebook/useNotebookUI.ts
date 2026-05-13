@@ -69,12 +69,14 @@ export function useNotebookUI({
   }, [collections, collectionTypeFilter])
 
   const filteredVocabItems = useMemo(() => {
+    // ⚡ Bolt: Hoist searchQuery.toLowerCase() to avoid O(N*M) redundant string lowercasing inside the filter loop
+    const lowerQuery = searchQuery.toLowerCase()
     return vocabularyItems.filter((item) => {
       if (item.collectionId !== selectedCollection) return false
       const matchesSearch = searchQuery === "" ||
-        item.word.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.meaning.some(m => m.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        item.vietnamese.some(v => v.toLowerCase().includes(searchQuery.toLowerCase()))
+        item.word.toLowerCase().includes(lowerQuery) ||
+        item.meaning.some(m => m.toLowerCase().includes(lowerQuery)) ||
+        item.vietnamese.some(v => v.toLowerCase().includes(lowerQuery))
       if (!matchesSearch) return false
       if (masteryFilter.length > 0 && !masteryFilter.includes(getMasteryCategory(item.masteryLevel))) return false
       if (starredFilter !== null && starredItems.has(item.id) !== starredFilter) return false
@@ -84,11 +86,13 @@ export function useNotebookUI({
   }, [vocabularyItems, selectedCollection, searchQuery, masteryFilter, starredFilter, levelFilter, starredItems])
 
   const filteredGrammarItems = useMemo(() => {
+    // ⚡ Bolt: Hoist searchQuery.toLowerCase() to avoid O(N) redundant string lowercasing inside the filter loop
+    const lowerQuery = searchQuery.toLowerCase()
     return grammarItems.filter((item) => {
       if (item.collectionId !== selectedCollection) return false
       const matchesSearch = searchQuery === "" ||
-        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.explanation.toLowerCase().includes(searchQuery.toLowerCase())
+        item.title.toLowerCase().includes(lowerQuery) ||
+        item.explanation.toLowerCase().includes(lowerQuery)
       if (!matchesSearch) return false
       if (masteryFilter.length > 0 && !masteryFilter.includes(getMasteryCategory(item.masteryLevel))) return false
       if (levelFilter.length > 0 && !levelFilter.includes(item.level)) return false

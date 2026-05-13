@@ -42,3 +42,7 @@
 ## 2025-03-03 - O(N) Array Aggregation
 **Learning:** React re-renders or utility logic executing multiple O(N) Array passes using `.filter().length` in sequence on the same dataset creates an easily-fixable performance bottleneck.
 **Action:** Always refactor sequential `.filter().length` aggregations into a single loop (e.g. `for` or `.reduce`) to traverse the array exactly once.
+
+## 2024-05-20 - [Optimized Redundant String Lowercasing inside array iterators]
+**Learning:** In highly dynamic components like `useNotebookUI` that filter large arrays of strings natively in the browser on every input stroke, calling `.toLowerCase()` repeatedly *inside* `.filter()` or `.some()` loops executes redundant string allocations for loop-invariant variables (e.g., the search query itself).
+**Action:** Always inspect array iterators in React `useMemo` blocks handling list filtering, and hoist invariant computations like `searchQuery.toLowerCase()` outside the loop.
