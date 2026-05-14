@@ -166,11 +166,16 @@ export default function PlanPageClient({
 
   // Group tasks for calendar
   // ⚡ Bolt: Memoize grouped tasks to prevent O(N) re-filtering on every render (e.g., when toggling lesson completion)
-  const groupedTasks = useMemo(() => ({
-    morning: todayLessons.filter(t => getTimePeriod(t.startTime) === "morning"),
-    afternoon: todayLessons.filter(t => getTimePeriod(t.startTime) === "afternoon"),
-    evening: todayLessons.filter(t => getTimePeriod(t.startTime) === "evening"),
-  }), [todayLessons]);
+  // and use a single reduce pass to avoid O(3N) multiple array traversals
+  const groupedTasks = useMemo(() => {
+    return todayLessons.reduce((acc, t) => {
+      const period = getTimePeriod(t.startTime);
+      if (period === "morning") acc.morning.push(t);
+      else if (period === "afternoon") acc.afternoon.push(t);
+      else if (period === "evening") acc.evening.push(t);
+      return acc;
+    }, { morning: [] as TodayLesson[], afternoon: [] as TodayLesson[], evening: [] as TodayLesson[] });
+  }, [todayLessons]);
 
   return (
     <ProtectedRoute

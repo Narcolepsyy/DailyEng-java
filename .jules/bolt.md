@@ -42,3 +42,7 @@
 ## 2025-03-03 - O(N) Array Aggregation
 **Learning:** React re-renders or utility logic executing multiple O(N) Array passes using `.filter().length` in sequence on the same dataset creates an easily-fixable performance bottleneck.
 **Action:** Always refactor sequential `.filter().length` aggregations into a single loop (e.g. `for` or `.reduce`) to traverse the array exactly once.
+
+## 2024-06-25 - [Optimized O(K*N) Filters to O(N) Loops]
+**Learning:** Performing multiple sequential `.filter()` operations on the same large array (e.g., grouping tasks by time of day, or calculating multiple status counts like `mastered`/`learning`/`unseen`) results in O(K*N) traversals and unnecessary array allocations.
+**Action:** Always refactor sequential `.filter()` passes on the same array into a single `.reduce()` or `for` loop, completing all aggregations or groupings in a single O(N) pass to reduce CPU and garbage collection overhead.
