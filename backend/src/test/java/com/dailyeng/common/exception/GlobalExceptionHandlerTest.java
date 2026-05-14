@@ -89,7 +89,7 @@ class GlobalExceptionHandlerTest {
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("An unexpected error occurred. Please try again.", response.getBody().error());
+        assertEquals("Unexpected Server Error: something broke", response.getBody().error());
         assertEquals(500, response.getBody().status());
     }
 

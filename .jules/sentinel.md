@@ -17,3 +17,8 @@
 **Vulnerability:** The Spring Boot API mapped large string query/form parameters (`targetLanguage`) and passed them directly to downstream services (Azure Speech / Translator) or resolution functions.
 **Learning:** Even internal helper functions mapping standard types (like language codes) can cause OutOfMemory errors, DoS attacks, or massive string allocation overheads if bad actors submit payloads with millions of characters to a REST controller that lacks length bounds.
 **Prevention:** Add hardcoded string `.length()` checks (e.g., `> 50`) inside the controller at the entry point, or apply standard Spring `@Size(max=...)` annotations to enforce bounds on every string input, regardless of how "harmless" the field seems.
+
+## 2024-05-14 - Fix IDOR in StudyTask Updates
+**Vulnerability:** The study task endpoints (`/study/tasks/{taskId}/toggle` and `/study/tasks/{taskId}/time`) allowed modifying study task properties by simply passing a task ID, without checking if the task actually belonged to the authenticated user's study plan.
+**Learning:** Generic find-by-ID operations (`studyTaskRepository.findById`) in controllers lacking ownership verification lead to Insecure Direct Object Reference (IDOR) vulnerabilities where users can modify other users' data.
+**Prevention:** Always scope resource fetching and mutation in the database query using the authenticated user's ID (e.g., `findByIdAndPlan_UserId(taskId, userId)`).
