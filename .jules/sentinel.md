@@ -17,3 +17,8 @@
 **Vulnerability:** The Spring Boot API mapped large string query/form parameters (`targetLanguage`) and passed them directly to downstream services (Azure Speech / Translator) or resolution functions.
 **Learning:** Even internal helper functions mapping standard types (like language codes) can cause OutOfMemory errors, DoS attacks, or massive string allocation overheads if bad actors submit payloads with millions of characters to a REST controller that lacks length bounds.
 **Prevention:** Add hardcoded string `.length()` checks (e.g., `> 50`) inside the controller at the entry point, or apply standard Spring `@Size(max=...)` annotations to enforce bounds on every string input, regardless of how "harmless" the field seems.
+
+## 2026-05-15 - Prevent DoS/SSRF Cost Exhaustion via Input Length Validation in AI Chat
+**Vulnerability:** The `/dorara/chat` and `/dorara/enrich` endpoints accepted potentially unbounded string payloads (`userMessage`, `aiResponse`, `currentPage`, `targetLanguage`) from user request payloads which were then forwarded to external paid AI services like Gemini API without length restrictions, risking DoS and cost exhaustion.
+**Learning:** Controller DTOs routing directly to AI services must enforce text bounds before invoking APIs. Lacking strict size validations on nested objects inside collections, unbounded payloads can run up third-party AI service costs and tie up backend processing limits.
+**Prevention:** Always ensure request payloads mapped in DTOs are fully constrained via `@Size(max=X)` on every String attribute and that `@RequestBody` arguments in the Controller are validated using the `@Valid` annotation. Add `@Valid` on nested lists when applicable to perform recursive validation.
