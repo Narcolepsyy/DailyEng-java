@@ -42,3 +42,7 @@
 ## 2025-03-03 - O(N) Array Aggregation
 **Learning:** React re-renders or utility logic executing multiple O(N) Array passes using `.filter().length` in sequence on the same dataset creates an easily-fixable performance bottleneck.
 **Action:** Always refactor sequential `.filter().length` aggregations into a single loop (e.g. `for` or `.reduce`) to traverse the array exactly once.
+
+## 2025-05-18 - [Optimized Multiple Filters into Single Loop in PlanPageClient]
+**Learning:** When separating items into distinct categories (like morning/afternoon/evening tasks), using multiple `.filter()` calls traverses the entire array multiple times. This results in an O(k*N) operation, which adds up on frequent renders in Client Components when lists are large.
+**Action:** Replace multiple sequential `.filter()` operations with a single `for` loop to categorize the items in an O(N) single pass, saving redundant iterations and intermediate array allocations.

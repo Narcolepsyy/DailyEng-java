@@ -165,12 +165,22 @@ export default function PlanPageClient({
   const selectedPlan = todayLessons.find((p) => p.id === selectedPlanId) || todayLessons[0]
 
   // Group tasks for calendar
-  // ⚡ Bolt: Memoize grouped tasks to prevent O(N) re-filtering on every render (e.g., when toggling lesson completion)
-  const groupedTasks = useMemo(() => ({
-    morning: todayLessons.filter(t => getTimePeriod(t.startTime) === "morning"),
-    afternoon: todayLessons.filter(t => getTimePeriod(t.startTime) === "afternoon"),
-    evening: todayLessons.filter(t => getTimePeriod(t.startTime) === "evening"),
-  }), [todayLessons]);
+  // ⚡ Bolt: Memoize grouped tasks and use a single O(N) pass to prevent redundant array traversals and allocations
+  const groupedTasks = useMemo(() => {
+    const morning: TodayLesson[] = [];
+    const afternoon: TodayLesson[] = [];
+    const evening: TodayLesson[] = [];
+
+    for (let i = 0; i < todayLessons.length; i++) {
+      const task = todayLessons[i];
+      const period = getTimePeriod(task.startTime);
+      if (period === "morning") morning.push(task);
+      else if (period === "afternoon") afternoon.push(task);
+      else if (period === "evening") evening.push(task);
+    }
+
+    return { morning, afternoon, evening };
+  }, [todayLessons]);
 
   return (
     <ProtectedRoute
