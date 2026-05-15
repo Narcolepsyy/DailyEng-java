@@ -104,6 +104,7 @@ export function NotebookSidebar({
                   variant="ghost"
                   size="icon"
                   aria-label="Delete notebook"
+                  title="Delete notebook"
                   className="h-7 w-7 rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-50 transition-all duration-200 cursor-pointer"
                   onClick={(e) => { e.stopPropagation(); onDeleteNotebook(collection.id) }}
                 >

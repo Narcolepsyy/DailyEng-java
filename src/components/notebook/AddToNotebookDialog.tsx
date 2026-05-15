@@ -165,7 +165,7 @@ export function AddToNotebookDialog({ type, itemPayload, itemPayloads, defaultNo
         }}>
             <DialogTrigger asChild>
                 {children ? children : (
-                    <Button variant="ghost" size="icon" className={saved ? "text-primary-600" : "text-slate-400 hover:text-primary-600"} title="Add to Notebook">
+                    <Button variant="ghost" size="icon" className={saved ? "text-primary-600" : "text-slate-400 hover:text-primary-600"} aria-label={saved ? "Added to Notebook" : "Add to Notebook"} title={saved ? "Added to Notebook" : "Add to Notebook"}>
                         {saved ? <Check className="w-5 h-5" /> : <BookPlus className="w-5 h-5" />}
                     </Button>
                 )}
