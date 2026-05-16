@@ -102,8 +102,8 @@ public class StudyPlanService {
     // ========================================================================
 
     @Transactional
-    public StudyTaskResponse toggleTaskCompletion(String taskId, ToggleTaskRequest request) {
-        var task = findTaskById(taskId);
+    public StudyTaskResponse toggleTaskCompletion(String taskId, String userId, ToggleTaskRequest request) {
+        var task = findTaskByIdAndUserId(taskId, userId);
         task.setCompleted(request.completed());
         studyTaskRepository.save(task);
         return toTaskResponse(task);
@@ -114,8 +114,8 @@ public class StudyPlanService {
     // ========================================================================
 
     @Transactional
-    public StudyTaskResponse updateTaskTime(String taskId, UpdateTaskTimeRequest request) {
-        var task = findTaskById(taskId);
+    public StudyTaskResponse updateTaskTime(String taskId, String userId, UpdateTaskTimeRequest request) {
+        var task = findTaskByIdAndUserId(taskId, userId);
         task.setStartTime(request.startTime());
         task.setEndTime(request.endTime());
         studyTaskRepository.save(task);
@@ -203,8 +203,8 @@ public class StudyPlanService {
                 });
     }
 
-    private StudyTask findTaskById(String taskId) {
-        return studyTaskRepository.findById(taskId)
+    private StudyTask findTaskByIdAndUserId(String taskId, String userId) {
+        return studyTaskRepository.findByIdAndPlanUserId(taskId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Study task not found: " + taskId));
     }
 

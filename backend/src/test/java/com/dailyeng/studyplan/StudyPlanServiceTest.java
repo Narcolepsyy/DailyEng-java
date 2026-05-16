@@ -219,10 +219,10 @@ class StudyPlanServiceTest {
         @DisplayName("toggles task completion")
         void toggle() {
             var task = createTestTask(TASK_ID, TaskType.vocab, "Learn Words", false);
-            when(studyTaskRepository.findById(TASK_ID)).thenReturn(Optional.of(task));
+            when(studyTaskRepository.findByIdAndPlanUserId(TASK_ID, USER_ID)).thenReturn(Optional.of(task));
             when(studyTaskRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-            var result = studyPlanService.toggleTaskCompletion(TASK_ID, new ToggleTaskRequest(true));
+            var result = studyPlanService.toggleTaskCompletion(TASK_ID, USER_ID, new ToggleTaskRequest(true));
 
             assertTrue(result.completed());
             verify(studyTaskRepository).save(task);
@@ -231,10 +231,10 @@ class StudyPlanServiceTest {
         @Test
         @DisplayName("throws when task not found")
         void notFound() {
-            when(studyTaskRepository.findById(TASK_ID)).thenReturn(Optional.empty());
+            when(studyTaskRepository.findByIdAndPlanUserId(TASK_ID, USER_ID)).thenReturn(Optional.empty());
 
             assertThrows(ResourceNotFoundException.class,
-                    () -> studyPlanService.toggleTaskCompletion(TASK_ID, new ToggleTaskRequest(true)));
+                    () -> studyPlanService.toggleTaskCompletion(TASK_ID, USER_ID, new ToggleTaskRequest(true)));
         }
     }
 

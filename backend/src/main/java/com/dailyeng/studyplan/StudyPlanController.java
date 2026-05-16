@@ -61,7 +61,7 @@ public class StudyPlanController extends BaseController {
             @PathVariable String taskId,
             @Valid @RequestBody ToggleTaskRequest request
     ) {
-        return ResponseEntity.ok(studyPlanService.toggleTaskCompletion(taskId, request));
+        return ResponseEntity.ok(studyPlanService.toggleTaskCompletion(taskId, requireUserId(), request));
     }
 
     @PutMapping("/tasks/{taskId}/time")
@@ -69,7 +69,7 @@ public class StudyPlanController extends BaseController {
             @PathVariable String taskId,
             @Valid @RequestBody UpdateTaskTimeRequest request
     ) {
-        return ResponseEntity.ok(studyPlanService.updateTaskTime(taskId, request));
+        return ResponseEntity.ok(studyPlanService.updateTaskTime(taskId, requireUserId(), request));
     }
 
     @GetMapping("/stats")
