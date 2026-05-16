@@ -42,3 +42,6 @@
 ## 2025-03-03 - O(N) Array Aggregation
 **Learning:** React re-renders or utility logic executing multiple O(N) Array passes using `.filter().length` in sequence on the same dataset creates an easily-fixable performance bottleneck.
 **Action:** Always refactor sequential `.filter().length` aggregations into a single loop (e.g. `for` or `.reduce`) to traverse the array exactly once.
+## 2025-05-19 - [Hoisted Loop-Invariant Computation out of Array Filtering]
+**Learning:** During array filtering (e.g. `.filter()` inside `useMemo` for search results), calling `.toLowerCase()` on the search query *inside* the loop causes it to be re-evaluated for every item in the array. Worse, if it's placed inside a nested loop like `.some()`, the redundant O(N*M) string allocations can severely degrade performance in Next.js Client Components when filtering large data arrays on every keystroke.
+**Action:** Always hoist loop-invariant computations, such as `searchQuery.toLowerCase()`, outside of React `.filter()` or `.map()` loops to evaluate them exactly once per render.
