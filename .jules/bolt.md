@@ -42,3 +42,7 @@
 ## 2025-03-03 - O(N) Array Aggregation
 **Learning:** React re-renders or utility logic executing multiple O(N) Array passes using `.filter().length` in sequence on the same dataset creates an easily-fixable performance bottleneck.
 **Action:** Always refactor sequential `.filter().length` aggregations into a single loop (e.g. `for` or `.reduce`) to traverse the array exactly once.
+
+## 2025-05-20 - [Optimized array operations by hoisting loop-invariant computations]
+**Learning:** Performing loop-invariant string transformations like `.toLowerCase()` inside a loop directly (such as an `Array.prototype.filter()` or `.map()` operation) repeatedly allocates new strings and executes identical string manipulations for every element in the array. This creates noticeable GC overhead and can significantly slow down React rendering when large arrays are involved.
+**Action:** Always hoist loop-invariant computations, such as `searchQuery.toLowerCase()`, to the outside of array iteration functions. This turns O(N*M) redundant string operations into a single O(1) allocation outside the loop.
