@@ -49,6 +49,9 @@ public class GrammarController extends BaseController {
     public ResponseEntity<List<GrammarTopicListItem>> searchTopics(
             @RequestHeader(value = "X-Learning-Language", defaultValue = "en") String language,
             @RequestParam String q) {
+        if (q != null && q.length() > 100) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok(grammarService.searchTopics(q, language));
     }
 
