@@ -17,3 +17,8 @@
 **Vulnerability:** The Spring Boot API mapped large string query/form parameters (`targetLanguage`) and passed them directly to downstream services (Azure Speech / Translator) or resolution functions.
 **Learning:** Even internal helper functions mapping standard types (like language codes) can cause OutOfMemory errors, DoS attacks, or massive string allocation overheads if bad actors submit payloads with millions of characters to a REST controller that lacks length bounds.
 **Prevention:** Add hardcoded string `.length()` checks (e.g., `> 50`) inside the controller at the entry point, or apply standard Spring `@Size(max=...)` annotations to enforce bounds on every string input, regardless of how "harmless" the field seems.
+
+## 2025-02-20 - Prevent DoS/SSRF Cost Exhaustion via Input Length Validation in Dorara Chat
+**Vulnerability:** Controller DTOs for the Dorara Chat endpoints (e.g., `DoraraDtos.ChatRequest`, `DoraraDtos.EnrichRequest`) lacked max string length validation via `@Size(max=X)`. This allowed attackers to send arbitrarily large payloads through to paid external APIs (Gemini), risking Denial of Service (DoS) and cost exhaustion (Denial of Wallet).
+**Learning:** External API dependencies charge by token/character count. Without strict constraints at the entry boundary (DTOs), unbound string properties on requests bypass the system and run up third-party costs or consume backend memory.
+**Prevention:** Always add explicit input length constraints using `jakarta.validation.constraints.Size(max=...)` on DTO fields that get passed to third-party services, and ensure `@Valid` is used on nested objects and the controller parameter.
