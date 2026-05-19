@@ -17,3 +17,8 @@
 **Vulnerability:** The Spring Boot API mapped large string query/form parameters (`targetLanguage`) and passed them directly to downstream services (Azure Speech / Translator) or resolution functions.
 **Learning:** Even internal helper functions mapping standard types (like language codes) can cause OutOfMemory errors, DoS attacks, or massive string allocation overheads if bad actors submit payloads with millions of characters to a REST controller that lacks length bounds.
 **Prevention:** Add hardcoded string `.length()` checks (e.g., `> 50`) inside the controller at the entry point, or apply standard Spring `@Size(max=...)` annotations to enforce bounds on every string input, regardless of how "harmless" the field seems.
+
+## 2026-04-01 - [Denial of Service via Expensive Search Queries]
+**Vulnerability:** The Spring Boot API mapped unbounded search string query parameters (`q`) in `DictionaryController`, `VocabController`, `GrammarController`, and `SpeakingController` and passed them directly to the database via repository methods that execute `LIKE %query%` queries. This allowed attackers to send massive strings, causing expensive database operations and risking Denial of Service (DoS).
+**Learning:** Performing `LIKE` queries on massive string inputs can severely degrade database performance and tie up backend threads. Even if a search seems harmless, unbounded input length limits on search endpoints are a significant DoS risk.
+**Prevention:** Always add hardcoded string length checks (e.g., `if (q != null && q.length() > 100) return ResponseEntity.badRequest().build();`) inside the controller at the entry point to enforce boundaries on search queries before forwarding them to database operations.
