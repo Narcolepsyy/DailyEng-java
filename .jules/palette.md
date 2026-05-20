@@ -15,3 +15,6 @@
 ## 2026-04-05 - Add accessible labels to microphone buttons in practice mode
 **Learning:** Found that custom practice mode components (`GrammarPracticeMode.tsx` and `VocabPracticeMode.tsx`) used interactive `Button` elements with `size="icon"` for microphone recording but lacked `aria-label`s, rendering them inaccessible to screen readers.
 **Action:** Always ensure that icon-only interactive buttons in newly created or complex interactive modes have both an `aria-label` for screen reader support and a `title` for visual tooltips.
+## 2025-04-05 - Add aria-label and title to AddToNotebookDialog icon button
+**Learning:** Found that `AddToNotebookDialog` has an icon-only `BookPlus`/`Check` button for "Add to Notebook", which lacked an `aria-label` and `title` that reflects its state (saved or not saved).
+**Action:** When creating stateful icon-only buttons, always ensure the `aria-label` and `title` correctly describe the action relative to the button's current state.
